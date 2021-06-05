@@ -2,6 +2,10 @@
 
 MATLAB, R, and RStan code for omics-based metabolic flux estimation without labeling for extended trans-omic analysis (OMELET).
 
+OMELET is an approach to use simultaneously obtained multi-omic data to infer metabolic fluxes in each condition, identify changes in metabolic flux between conditions, and quantify contributions of regulators to the changes in metabolic flux. 
+
+
+
 ## Workflow
 
 The series of analysis performed in Uematsu et al. are described in `run_OMELETmouse.m` for mouse data and `run_OMELETyeast.m` for simulated data from the yeast kinetic model.
@@ -16,6 +20,9 @@ The series of analysis performed in Uematsu et al. are described in `run_OMELETm
    + `prep` method in `@outputOMELETmouse` class for mouse data.
 4. Make figures (MATLAB and R).
    + `makeFig*` methods in `@outputOMELETmouse` class for mouse data.
+   + Figs. 3A and S3 are plotted by R. 
+
+![](OMELET_graphical_model.png)
 
 # Requirements
 
@@ -31,9 +38,11 @@ Docker version 20.10.6
 
 # Contents
 
-## make_input_OMELET
+## 1. Make input data for OMELET
 
-A script to make input data for OMELET.
+### make_input_OMELET
+
+MATLAB scripts to make input data for OMELET.
 
 + `make_input_OMELETmouse.m`
 
@@ -45,29 +54,43 @@ A script to make input data for OMELET.
 
 + `S_OMELETyeast.csv`
 
-  Stoichiometric matrix and information on cofactors and allosteric effectors for `OMELETyeast.stan` model. This is used in `@simKineticModel/makeRstanInput.m`.
+  Stoichiometric matrix and information on cofactors and allosteric effectors for `OMELETyeast.stan` model.
 
-  
+### @simKineticModel
 
-## OMELET_rstan
+A MATLAB class to generate datasets (metabolites, enzymes, and metabolic fluxes) in several conditions from the yeast kinetic model as input data for OMELET. To make input data for OMELET, this class load `S_OMELETyeast.csv`.
+
+
+
+## 2. Perform OMELET to infer metabolic fluxes and other parameters
+
+### OMELET_rstan
 
 Scripts to perform OMELET in RStan.
 
 + `run_OMELETmouse.R`
 
-  This code performs parameter estimation of `OMELETmouse.stan` model. You need to prepare input data `input_OMELETmouse` by `make_input_OMELET/make_input_OMELETmouse.m`.
+  This code performs parameter estimation of `OMELETmouse.stan` model. You need to prepare input data `input_OMELETmouse` by `make_input_OMELETmouse.m`. This code also makes Figure 3A.
 
 + `run_OMELETyeast.R`
 
-  This code performs parameter estimation of `OMELETyeast.stan` model. You need to prepare input data in `input_OMELETyeast` by `@simKineticModel/makeRstanInput.m`.
+  This code performs parameter estimation of `OMELETyeast.stan` model. You need to prepare input data in `input_OMELETyeast` by `@simKineticModel/makeRstanInput.m`. This code also makes Figure S3.
 
 
 
-The RStan environment can be build by downloading docker image `saori/rstan` from [DockerHub](https://hub.docker.com/r/saori/rstan).
+The RStan environment can be build from docker image `saori/rstan` from [DockerHub](https://hub.docker.com/r/saori/rstan). Make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed.
 
 + `saori/rstan:latest`
 
-  This docker image is to run RStudio Server (based on `rocker/rstudio:3.6.1`). Dockerfile is provided in `docker_files_for_rstan/saori_rstan_latest/Dockerfile`. To run the docker container from this image, run the following.
+  This docker image is to run RStudio Server (based on `rocker/rstudio:3.6.1`). Dockerfile is provided in `docker_files_for_rstan/saori_rstan_latest/Dockerfile`. 
+
+  To get `saori/rstan:latest`:
+
+  ```shell
+  docker pull saori/rstan:latest
+  ```
+
+  To run this image in a docker container:
 
    ```shell 
    bash run_docker_RStan.sh container_name rstudio
@@ -77,23 +100,30 @@ The RStan environment can be build by downloading docker image `saori/rstan` fro
 
 + `saori/rstan:cmd`
 
-  This docker image is to run R console without running RStudio Server (based on `rocker/r-ver:3.6.1`). You can use this image to perform parallel computation in one computer. Dockerfile is provided in `docker_files_for_rstan/saori_rstan_cmd/Dockerfile`. To run the docker container from this image, run the following.
+  This docker image is to run R console without running RStudio Server (based on `rocker/r-ver:3.6.1`). You can use this image to perform parameter estimation of several models in one computer. Dockerfile is provided in `docker_files_for_rstan/saori_rstan_cmd/Dockerfile`.
 
+  To get `saori/rstan:cmd`:
+  
+  ```shell
+  docker pull saori/rstan:cmd
+  ```
+  
+  To run this image in a docker container:
+  
   ```shell
   bash run_docker_RStan.sh container_name cmd
   ```
-
   
 
-## @outputOMELETmouse
-
-A class to make outputs of OMELET. This calculates contributions of regulators to changes in metabolic flux between conditions, as well as make figures for Uematsu et al. You need to prepare RStan input by `make_input_OMELET/make_input_OMELETmouse.m` and output by `run_OMELETmouse.R`.
 
 
+## 3. Calculate contributions of regulators to changes in metabolic flux between conditions
 
-## @simKineticModel
+## 4. Make figures
 
-A class to generate datasets (metabolites, enzymes, and metabolic fluxes) in several conditions from the yeast kinetic model as input data for OMELET.
+### @outputOMELETmouse
+
+A MATLAB class to make outputs of OMELET. This calculates contributions of regulators to changes in metabolic flux between conditions, as well as make figures for Uematsu et al. You need to prepare RStan input by `make_input_OMELETmouse.m` and output by `run_OMELETmouse.R`.
 
 
 
@@ -121,4 +151,19 @@ Data used for Uematsu et al.
 
 ## +lib
 
-Program libraries.
+Shared program libraries for the above scripts.
+
+
+
+# Contact
+
+Saori Uematsu: suematsu@bs.s.u-tokyo
+
+Satoshi Ohno: sohno@bs.s.y-tokyo.ac.jp
+
+Shinya Kuroda: skuroda@bs.s.u-tokyo.ac.jp
+
+# Reference
+
+Saori Uematsu, Satoshi Ohno, Kaori Tanaka, Atsushi Hatano, Toshiya Kokaji, Yuki Ito, Hiroyuki Kubota, Ken-ichi Hironaka, Yutaka Suzuki, Masaki Matsumoto, Keiichi I. Nakayama, Akiyoshi Hirayama, Tomoyoshi Soga, and Shinya Kuroda. Omics-based label-free metabolic flux inference reveals dysregulation of glucose metabolism in liver associated with obesity.
+
