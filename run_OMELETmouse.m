@@ -1,29 +1,29 @@
 %%%%%%%%%%%%%%%%%%%
 % make input data for RStan
 
-cd make_input_OMELET/
-S_path = './S_OMELETmouse.csv';
+addpath ./make_input_OMELET
+S_path = './make_input_OMELET/S_OMELETmouse.csv';
 must_rxn = {'Pgm2', 'Tpi1', 'Ldha', 'Gpt','Pcx','Cs','Glud1'};
-savedir = './input_OMELETmouse';
+savedir = './make_input_OMELET/input_OMELETmouse_test';
 mkdir(savedir);
-make_mouse_model(S_path,must_rxn,savedir);
-cd ../
+make_input_OMELETmouse(S_path,must_rxn,savedir);
 
 %%%%%%%%%%%%%%%%%%%
 
 % parameter estimation by RStan
 
 %%%%%%%%%%%%%%%%%%%
+% calculate contributions of regulators to changes in metabolic flux
+% between conditions
 % make Figures
 
 data_path = './data';
-rstan_path = '/home/suematsu/Git/FluxAnalysis/RStan/result/rstan20210430_model59_OGTT0h4h';
+rstan_path = './OMELET_rstan/result/OMELETmouse';
 model_path = './OMELET_rstan/input_OMELETmouse/model_data.mat';
 
-obj = OMELETmouse(rstan_path,model_path,data_path);
-savedir = '/home/suematsu/Git/FluxAnalysis_result/result20210531/OMELETmouse';
+obj = outputOMELETmouse(rstan_path,model_path,data_path);
+savedir = './result_OMELETmouse';
 mkdir(savedir);
-
 
 obj.prep;
 
@@ -39,4 +39,4 @@ obj.makeFigS5(savedir);
 obj.makeFigS6(savedir);
 obj.makeFigS7(savedir);
 
-save([savedir '/obj.mat'],'obj');
+save([savedir '/obj_outputOMELETmouse.mat'],'obj');

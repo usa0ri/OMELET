@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1622779470791.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "0|54|64|0|\n66|66|104|0|\n106|67|143|0|\n145|37|162|0|\n164|75|210|0|\n212|69|244|0|\n246|75|282|0|\n284|38|298|0|\n300|62|338|0|\n340|41|343|0|\n345|49|405|0|\n407|61|452|0|\n454|61|719|0|\n",
+    "hash" : "3457179164",
+    "id" : "59D010D0",
+    "lastKnownWriteTime" : 1622780096,
+    "last_content_update" : 1622780098937,
+    "path" : "~/my_plot.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "721,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
