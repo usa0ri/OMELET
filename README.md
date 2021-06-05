@@ -10,17 +10,27 @@ OMELET is an approach to use simultaneously obtained multi-omic data to infer me
 
 The series of analysis performed in Uematsu et al. are described in `run_OMELETmouse.m` for mouse data and `run_OMELETyeast.m` for simulated data from the yeast kinetic model.
 
+For the analysis of mouse data:
+
 1. Make input data for OMELET (MATLAB).
-   + `make_input_OMELET.m` for mouse data.
-   + `@simulateKineticModel` for simulated data from the yeast kinetic model.
+   + `make_input_OMELETmouse.m` 
 2. Perform OMELET to infer metabolic fluxes and other parameters (RStan).
-   + `run_OMELETmouse.R` for mouse data.
-   + `run_OMELETyeast.R` for simulated data from the yeast kinetic model.
+   + `run_OMELETmouse.R`
 3. Calculate contributions of regulators to changes in metabolic flux between conditions (MATLAB).
-   + `prep` method in `@outputOMELETmouse` class for mouse data.
+   + `prep` method in `@outputOMELETmouse` class
 4. Make figures (MATLAB and R).
    + `makeFig*` methods in `@outputOMELETmouse` class for mouse data.
-   + Figs. 3A and S3 are plotted by R. 
+   + Fig. 3A is plotted by R. 
+
+
+
+For the analysis of simulated data from the yeast kinetic model:
+
+1. Make input data for OMELET (MATLAB).
+   + `@simulateKineticModel`
+2. Perform OMELET to infer metabolic fluxes and other parameters (RStan).
+   + `run_OMELETyeast.R` 
+   + Fig. S3 is plotted by R.
 
 ![](OMELET_graphical_model.png)
 
@@ -44,21 +54,21 @@ Docker version 20.10.6
 
 MATLAB scripts to make input data for OMELET.
 
-+ `make_input_OMELETmouse.m`
++ `make_input_OMELET/make_input_OMELETmouse.m`
 
   This code makes input data for OMELET based on `S_OMELETmouse.csv`.
 
-+ `S_OMELETmouse.csv`
++ `make_input_OMELET/S_OMELETmouse.csv`
 
-  Stoichiometric matrix and information on cofactors and allosteric effectors for `OMELETmouse.stan` model.
+  Stoichiometric matrix and information on cofactors and allosteric effectors. This is used in `make_input_OMELETmouse.m`.
 
-+ `S_OMELETyeast.csv`
++ `make_input_OMELET/S_OMELETyeast.csv`
 
-  Stoichiometric matrix and information on cofactors and allosteric effectors for `OMELETyeast.stan` model.
+  Stoichiometric matrix and information on cofactors and allosteric effectors for simulated data. This is used in `makeRstanInput.m` function of `@simKineticModel` class.
 
 ### @simKineticModel
 
-A MATLAB class to generate datasets (metabolites, enzymes, and metabolic fluxes) in several conditions from the yeast kinetic model as input data for OMELET. To make input data for OMELET, this class load `S_OMELETyeast.csv`.
+A MATLAB class to generate datasets (metabolites, enzymes, and metabolic fluxes) in several conditions from the yeast kinetic model as input data for OMELET. `makeRstanInput.m` function loads `S_OMELETyeast.csv`.
 
 
 
@@ -68,21 +78,21 @@ A MATLAB class to generate datasets (metabolites, enzymes, and metabolic fluxes)
 
 Scripts to perform OMELET in RStan.
 
-+ `run_OMELETmouse.R`
++ `OMELET_rstan/run_OMELETmouse.R`
 
   This code performs parameter estimation of `OMELETmouse.stan` model. You need to prepare input data `input_OMELETmouse` by `make_input_OMELETmouse.m`. This code also makes Figure 3A.
 
-+ `run_OMELETyeast.R`
++ `OMELET_rstan/run_OMELETyeast.R`
 
-  This code performs parameter estimation of `OMELETyeast.stan` model. You need to prepare input data in `input_OMELETyeast` by `@simKineticModel/makeRstanInput.m`. This code also makes Figure S3.
+  This code performs parameter estimation of `OMELETyeast.stan` model. You need to prepare input data in `input_OMELETyeast` by `makeRstanInput.m` function of `@simKineticModel` class. This code also makes Figure S3.
 
 
 
-The RStan environment can be build from docker image `saori/rstan` from [DockerHub](https://hub.docker.com/r/saori/rstan). Make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed.
+The RStan environment can be build from docker image `saori/rstan` from [DockerHub](https://hub.docker.com/r/saori/rstan){:target="_blank"}. Make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed. We provide two options.
 
 + `saori/rstan:latest`
 
-  This docker image is to run RStudio Server (based on `rocker/rstudio:3.6.1`). Dockerfile is provided in `docker_files_for_rstan/saori_rstan_latest/Dockerfile`. 
+  This docker image is used to run RStudio Server (based on `rocker/rstudio:3.6.1`). Dockerfile is provided in `docker_files_for_rstan/saori_rstan_latest/Dockerfile`. 
 
   To get `saori/rstan:latest`:
 
@@ -100,7 +110,7 @@ The RStan environment can be build from docker image `saori/rstan` from [DockerH
 
 + `saori/rstan:cmd`
 
-  This docker image is to run R console without running RStudio Server (based on `rocker/r-ver:3.6.1`). You can use this image to perform parameter estimation of several models in one computer. Dockerfile is provided in `docker_files_for_rstan/saori_rstan_cmd/Dockerfile`.
+  This docker image is used to run R console without running RStudio Server (based on `rocker/r-ver:3.6.1`). You can use this image to perform parameter estimation of several models in one computer. Dockerfile is provided in `docker_files_for_rstan/saori_rstan_cmd/Dockerfile`.
 
   To get `saori/rstan:cmd`:
   
@@ -113,7 +123,6 @@ The RStan environment can be build from docker image `saori/rstan` from [DockerH
   ```shell
   bash run_docker_RStan.sh container_name cmd
   ```
-  
 
 
 
