@@ -116,7 +116,7 @@ The RStan environment can be build from docker images `saori/rstan` from [Docker
   run_docker_RStan.bat container_name rstudio
   ```
 
-  
+  Visit `localhost:8787` in your browser and log in with username `rstudio` and password `1`.
 
 + `saori/rstan:cmd`
 

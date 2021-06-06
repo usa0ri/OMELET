@@ -8,9 +8,7 @@ initf_path <- "./initf_OMELETyeast.R"
 smodel = "OMELETyeast.stan"
 dir.create(save_dir)
 
-# thin <- 2
-# adapt_delta <- 0.99
-# max_treedepth <- 20
+# test
 thin <- 1
 adapt_delta <- 0.8
 max_treedepth <- 10
@@ -19,14 +17,18 @@ c_e <- 0.01
 v_max <- 5
 grp <- c(1,2,3,4,5)
 pair <- FALSE
-# res <- my_stan_multi(save_dir,data_path,initf_path,smodel,
-#                      20000,17500,thin,adapt_delta,max_treedepth,
-#                      c_v,c_e,v_max,
-#                      grp,pair)
 res <- my_stan_multi(save_dir,data_path,initf_path,smodel,
                      1000,500,thin,adapt_delta,max_treedepth,
                      c_v,c_e,v_max,
                      grp,pair)
+# Settings in Uematsu et al.
+# thin <- 2
+# adapt_delta <- 0.99
+# max_treedepth <- 20
+# res <- my_stan_multi(save_dir,data_path,initf_path,smodel,
+#                      20000,17500,thin,adapt_delta,max_treedepth,
+#                      c_v,c_e,v_max,
+#                      grp,pair)
 
 ##################
 ms <- rstan::extract(res$fit)
