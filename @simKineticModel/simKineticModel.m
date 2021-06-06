@@ -53,10 +53,9 @@ classdef simKineticModel < handle
         makeRstanInput(obj,S_path,noise,savedir);
         
         % WT
-        function makeWT(obj,sbml_path,savedir)
+        function makeWT(obj,sbml_path,iter,savedir)
             obj.makeModelobj(sbml_path,savedir);
             obj.makeIdxTbl(savedir);
-            iter = 50;
             cv = 0.1;
             obj.genData(iter,cv,'WT',savedir);
             obj.rateOut('WT');
