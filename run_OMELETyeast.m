@@ -7,15 +7,15 @@ obj = simKineticModel('Messiha2013','WT');
 sbml_path = './data/BIOMD0000000503_url.xml';
 savedir = './data/simulation_yeast';
 mkdir(savedir);
-obj.makeWT(sbml_path,savedir);
+% sample number of each strain
+iter = 50;
+obj.makeWT(sbml_path,iter,savedir);
 strain_names = {'M01','M02','M03','M04'};
+
+% coefficient of variance for perturbation to each strain
 cv_list = [0.4,0.6,1.4,1.6];
 for i=1:length(strain_names)
-    obj.makeMut(strain_names{i},50,cv_list(i),savedir);
-end
-
-for i=1:length(strain_names)
-    obj.plotData(strain_names{i},savedir)
+    obj.makeMut(strain_names{i},iter,cv_list(i),savedir);
 end
 
 save([savedir '/obj.mat'],'obj');

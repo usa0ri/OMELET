@@ -34,10 +34,11 @@ enz_names = struct.tbl_p.varSimbio;
 tbl_out = obj.tbl_mat.tbl_out;
 met_tbl = tbl_out(struct.tbl_m.idxSimbio,:);
 assert(isequal(cellstr(met_tbl{:,2}),met_names));
-met_data_wt = met_tbl{:,end-50+1:end};%% FIXME
+iter = size(met_tbl,2)-4;
+met_data_wt = met_tbl{:,end-iter+1:end};%% FIXME
 enz_tbl = tbl_out(struct.tbl_p.idxSimbio,:);
 assert(isequal(cellstr(enz_tbl{:,2}),enz_names));
-enz_data_wt = enz_tbl{:,end-50+1:end};
+enz_data_wt = enz_tbl{:,end-iter+1:end};
 
 met_data_wt_ref = met_tbl.Value;
 enz_data_wt_ref = enz_tbl.Value;
@@ -49,10 +50,11 @@ idx_tmp = ismember(obj.strain_mut_name,strain_name);
 tbl_out = obj.tbl_mat_mut{idx_tmp};
 met_tbl = tbl_out.tbl_out(struct.tbl_m.idxSimbio,:);
 assert(isequal(cellstr(met_tbl{:,2}),met_names));
-met_data_mut = met_tbl{:,end-50+1:end};
+iter_ = size(met_tbl,2)-4;
+met_data_mut = met_tbl{:,end-iter_+1:end};
 enz_tbl = tbl_out.tbl_out(struct.tbl_p.idxSimbio,:);
 assert(isequal(cellstr(enz_tbl{:,2}),enz_names));
-enz_data_mut = enz_tbl{:,end-50+1:end};
+enz_data_mut = enz_tbl{:,end-iter_+1:end};
 
 met_data_mut_ref = met_tbl.Value;
 enz_data_mut_ref = enz_tbl.Value;
