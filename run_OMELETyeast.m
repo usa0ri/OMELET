@@ -5,7 +5,7 @@ addpath ./make_input_OMELET
 obj = simKineticModel('Messiha2013','WT');
 
 sbml_path = './data/';
-savedir = './make_input_OMELET/simulation_yeast';
+savedir = './data/simulation_yeast';
 mkdir(savedir);
 obj.makeWT(sbml_path,savedir);
 strain_names = {'M01','M02','M03','M04'};
@@ -23,7 +23,7 @@ save([savedir '/obj.mat'],'obj');
 %%%%%%%%%%%%%%%%%%%
 % make input data for RStan
 
-savedir = './OMELET_rstan/input_OMELETyeast_test';
+savedir = './OMELET_rstan/input_OMELETyeast';
 S_path = './make_input_OMELET/S_OMELETyeast.csv';
 obj.makeRstanInput(S_path,savedir);
 

@@ -71,7 +71,7 @@ function plot_frac_bar(rxn_frac,rxn_target,obj,savedir)
            num2cell(reshape(frac_stat(:,g,:),num_stat,length(idx_frac))')];
     end
     out = [[{''}; rowname_frac], [ stat_names; data_tmp]];
-    writecell(out,[savedir '/data_fracHGP.xls'],'Sheet',rxn_target);
+    writecell(out,[savedir '/data_' rxn_target '.csv']);
 
     % plot
     frac_mu = reshape(mean(frac,1),num_g,length(idx_frac));

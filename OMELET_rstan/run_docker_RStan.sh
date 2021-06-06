@@ -18,4 +18,6 @@ elif [ "$2" = "cmd" ]; then
              -w /home/rstudio \
              --name $1 \
              saori/rstan:cmd
+else; then
+   echo "invalid argument: please specify rstudio or cmd."
 fi

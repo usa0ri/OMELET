@@ -4,7 +4,7 @@
 addpath ./make_input_OMELET
 S_path = './make_input_OMELET/S_OMELETmouse.csv';
 must_rxn = {'Pgm2', 'Tpi1', 'Ldha', 'Gpt','Pcx','Cs','Glud1'};
-savedir = './make_input_OMELET/input_OMELETmouse_test';
+savedir = './OMELET_rstan/input_OMELETmouse';
 mkdir(savedir);
 make_input_OMELETmouse(S_path,must_rxn,savedir);
 

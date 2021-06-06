@@ -384,7 +384,7 @@ function [data_m2,data_p2,data_t2,is_data_m,is_data_p,is_data_t] = make_data_omi
     
 %%%%%%%%%%%%%%%%
 %     metabolome data
-    tbl_met = readtable('../data/metabolome.csv',...
+    tbl_met = readtable('./data/metabolome.csv',...
         'ReadRowNames',false,'ReadVariableNames',false);
     met_names_tmp = tbl_met.Var1(5:end);
     met_names_tmp{ismember(met_names_tmp,'G3P')} = 'Glycerol 3P';
@@ -409,9 +409,9 @@ function [data_m2,data_p2,data_t2,is_data_m,is_data_p,is_data_t] = make_data_omi
 
 %%%%%%%%%%%%%%%%
 %     proteome and transcriptome data
-    tbl_pro = readtable('../data/proteome.csv',...
+    tbl_pro = readtable('./data/proteome.csv',...
         'ReadRowNames',false,'ReadVariableNames',false);
-    tbl_rna = readtable('../data/transcriptome.csv',...
+    tbl_rna = readtable('./data/transcriptome.csv',...
         'ReadRowNames',false,'ReadVariableNames',false);
     pro_names_tmp = tbl_pro.Var1(5:end);
     rna_names_tmp = tbl_rna.Var1(5:end);

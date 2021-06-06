@@ -1,0 +1,12 @@
+num_r	22
+num_ri	7
+num_rd	15
+num_rc	16
+num_m	23
+num_ri_wt	4
+num_b	12
+num_met_eff	14
+num_rxn_cmplx	1
+num_g	4
+num_p	2
+num_smpl	47
