@@ -2,6 +2,7 @@
 source("my_rstan_OMELETmouse.R")
 
 save_dir = "./result/result_mouse"
+dir.create("./result")
 data_path = "./input_OMELETmouse"
 initf_path <- "./initf_OMELETmouse.R"
 smodel = "OMELETmouse.stan"

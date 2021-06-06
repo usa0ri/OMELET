@@ -38,7 +38,7 @@ For the analysis of simulated data from the yeast kinetic model:
 
 The developmental version of the programs has been tested on the following systems:
 
-Ubuntu 18.04.5 LTS
+Ubuntu 18.04.5 LTS or Windows 10
 
 MATLAB R2019a
 
@@ -56,7 +56,7 @@ MATLAB scripts to make input data for OMELET.
 
 + `make_input_OMELET/make_input_OMELETmouse.m`
 
-  This code makes input data for OMELET based on `make_input_OMELET/S_OMELETmouse.csv`.
+  This code makes input data for OMELET from `make_input_OMELET/S_OMELETmouse.csv`. The input data used in Uematsu et al. is `OMELET_rstan/input_OMELETmouse_sample`. 
 
 + `make_input_OMELET/S_OMELETmouse.csv`
 
@@ -68,7 +68,7 @@ MATLAB scripts to make input data for OMELET.
 
 ### @simKineticModel
 
-A MATLAB class to generate datasets (metabolites, enzymes, and metabolic fluxes) in several conditions from the yeast kinetic model as input data for OMELET. `makeRstanInput` method in `@simKineticModel` class loads `make_input_OMELET/S_OMELETyeast.csv`.
+A MATLAB class to generate datasets (metabolites, enzymes, and metabolic fluxes) in several conditions from the yeast kinetic model as input data for OMELET. `makeRstanInput` method in `@simKineticModel` class loads `make_input_OMELET/S_OMELETyeast.csv`. The input data used in Uematsu et al. is `OMELET_rstan/input_OMELETyeast_sample`. 
 
 
 
@@ -102,9 +102,19 @@ The RStan environment can be build from docker images `saori/rstan` from [Docker
 
   To run this image in a docker container:
 
+  (terminal in Ubuntu)
+
    ```shell 
+   cd OMELET_rstan
    bash run_docker_RStan.sh container_name rstudio
    ```
+
+  (command prompt in Windows):
+
+  ```
+  cd OMELET_rstan
+  run_docker_RStan.dat container_name rstudio
+  ```
 
   
 
@@ -120,9 +130,21 @@ The RStan environment can be build from docker images `saori/rstan` from [Docker
   
   To run this image in a docker container:
   
+  (terminal in Ubuntu)
+  
   ```shell
+  cd OMELET_rstan
   bash run_docker_RStan.sh container_name cmd
   ```
+  
+  (command prompt in Windows):
+  
+  ```
+  cd OMELET_rstan
+  run_docker_RStan.dat container_name cmd
+  ```
+  
+  
 
 
 

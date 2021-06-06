@@ -2,6 +2,7 @@
 source("my_rstan_OMELETyeast.R")
 
 save_dir = "./result/result_yeast"
+dir.create("./result")
 data_path = "./input_OMELETyeast"
 initf_path <- "./initf_OMELETyeast.R"
 smodel = "OMELETyeast.stan"

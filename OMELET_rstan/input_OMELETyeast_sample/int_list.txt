@@ -1,0 +1,10 @@
+num_r	20
+num_ri	4
+num_rd	16
+num_rc	20
+num_m	23
+num_ri_wt	3
+num_b	12
+num_g	5
+num_met_eff	10
+num_smpl	250
