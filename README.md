@@ -113,7 +113,7 @@ The RStan environment can be build from docker images `saori/rstan` from [Docker
 
   ```
   cd OMELET_rstan
-  run_docker_RStan.dat container_name rstudio
+  run_docker_RStan.bat container_name rstudio
   ```
 
   
@@ -141,7 +141,7 @@ The RStan environment can be build from docker images `saori/rstan` from [Docker
   
   ```
   cd OMELET_rstan
-  run_docker_RStan.dat container_name cmd
+  run_docker_RStan.bat container_name cmd
   ```
   
   
