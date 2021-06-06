@@ -4,6 +4,8 @@ MATLAB, R, and RStan code for omics-based metabolic flux estimation without labe
 
 OMELET is an approach to use simultaneously obtained multi-omic data to infer metabolic fluxes in each condition, identify changes in metabolic flux between conditions, and quantify contributions of regulators to the changes in metabolic flux. 
 
+![](OMELET_graphical_model.png)
+
 
 
 ## Workflow
@@ -31,8 +33,6 @@ For the analysis of simulated data from the yeast kinetic model:
 2. Perform OMELET to infer metabolic fluxes and other parameters (RStan).
    + `OMELET_rstan/run_OMELETyeast.R` 
    + Figure S3 is plotted by R in this script.
-
-![](OMELET_graphical_model.png)
 
 # Requirements
 
