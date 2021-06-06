@@ -4,7 +4,7 @@ addpath ./make_input_OMELET
 
 obj = simKineticModel('Messiha2013','WT');
 
-sbml_path = './data/';
+sbml_path = './data/BIOMD0000000503_url.xml';
 savedir = './data/simulation_yeast';
 mkdir(savedir);
 obj.makeWT(sbml_path,savedir);
