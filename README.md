@@ -198,9 +198,9 @@ Shared program libraries for the above scripts.
 
 # Contact
 
-Saori Uematsu: suematsu@bs.s.u-tokyo
+Saori Uematsu: suematsu@bs.s.u-tokyo.ac.jp, saorid6e9p6p9@gmail.com
 
-Satoshi Ohno: sohno@bs.s.y-tokyo.ac.jp
+Satoshi Ohno: sohno@bs.s.u-tokyo.ac.jp
 
 Shinya Kuroda: skuroda@bs.s.u-tokyo.ac.jp
 
