@@ -5,7 +5,7 @@ addpath ./make_input_OMELET
 obj = simKineticModel('Messiha2013','WT');
 
 sbml_path = './data/';
-savedir = './make_input_OMELET/simulation_yeast';
+savedir = './OMELET_rstan/simulation_yeast';
 mkdir(savedir);
 obj.makeWT(sbml_path,savedir);
 strain_names = {'M01','M02','M03','M04'};
