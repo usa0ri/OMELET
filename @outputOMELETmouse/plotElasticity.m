@@ -7,6 +7,11 @@ function plotElasticity(obj,savedir)
     for i=1:length(enames)
         plot_e(enames{i},edata{i},fnames{i},savedir);
     end
+    
+    data_now.data = edata;
+    data_now.names = enames;
+    
+    obj.elasticity_data = data_now;
 
 end
 

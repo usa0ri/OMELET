@@ -14,6 +14,7 @@ function makeFig2(obj,savedir_)
         plot_bar_omics(data_omics{i},var_omics{i},name_omics{i},obj.model_data,savedir);
         pmat{i} = ttest_omics(data_omics{i},var_omics{i},name_omics{i},obj.model_data,savedir);
     end
+    obj.omics_data.pmat = pmat;
     
 end
 

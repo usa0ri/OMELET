@@ -48,17 +48,8 @@ function plot_frac_bar(rxn_frac,rxn_target,obj,savedir)
     for i=1:size(v,3)
         frac(:,:,i) = v(:,:,i)./vt;
     end
-
-    stat_names = {'Median','Mean','SD',...
-        'Lower limit of 95% credible interval',...
-        'Upper limit of 95% credible interval'};
+    [frac_stat, stat_names] = calc_stat_mcmc(frac);
     num_stat = length(stat_names);
-    frac_median = median(frac,1);
-    frac_mean = mean(frac,1);
-    frac_std = std(frac,0,1);
-    frac_95lower = prctile(frac,2.5,1);
-    frac_95upper = prctile(frac,97.5,1);
-    frac_stat = cat(1,frac_median,frac_mean,frac_std,frac_95lower,frac_95upper);
 
     colname_frac = cellfun(@(y) cellfun(@(x) [y ' (' x ')'], stat_names,'UniformOutput',false),...
         grp_names,'UniformOutput',false);
@@ -72,10 +63,77 @@ function plot_frac_bar(rxn_frac,rxn_target,obj,savedir)
     end
     out = [[{''}; rowname_frac], [ stat_names; data_tmp]];
     writecell(out,[savedir '/data_' rxn_target '.csv']);
+    
+    % difference between fractions
+    cmb_list = nchoosek(1:length(rxn_frac),2);
+    frac_diff = nan(size(frac,1),num_g,size(cmb_list,1));
+    rowname_tmp = cell(size(cmb_list,1),1);
+    for i=1:size(cmb_list,1)
+        rowname_tmp{i} = [rxn_frac{cmb_list(i,2)} ' - ' rxn_frac{cmb_list(i,1)}];
+        for ii=1:num_g
+            frac_diff(:,ii,i) = frac(:,ii,cmb_list(i,2))-frac(:,ii,cmb_list(i,1));
+        end
+    end
+    [frac_diff_stat, stat_names] = calc_stat_mcmc(frac_diff);
+    stat_names = [stat_names,{'95% CI includes 0 or not'}];
+    data_tmp = {};
+    colnames_all = {};
+    for i=1:num_g
+        frac_stat_now = reshape(frac_diff_stat(:,i,:),length(stat_names)-1,size(cmb_list,1));
+        is_diff = (frac_stat_now(4,:) > 0 & frac_stat_now(5,:) > 0) |...
+            (frac_stat_now(4,:) < 0 & frac_stat_now(5,:) < 0);
+        str_diff = cell(size(is_diff));
+        for ii=1:length(is_diff)
+            if is_diff(ii)
+                str_diff(ii) = {'True'};
+            else
+                str_diff(ii) = {'False'};
+            end
+        end
+        colnames_now = cellfun(@(x) [ grp_names{i} ' (' x ')'],stat_names,'UniformOutput',false);
+        colnames_all = [colnames_all,colnames_now];
+       data_tmp = [data_tmp, num2cell(frac_stat_now)', str_diff']; 
+    end
+    out_now_ = [rowname_tmp, data_tmp]; 
+    out_now = [[{''}, colnames_all]; out_now_];
+   writecell(out_now,[savedir '/data_diff_' rxn_target '.csv']);
 
+   % difference in each fractions between conditions
+    cmb_names = {'Ob0h - WT0h','Ob4h - WT4h','WT4h - WT0h','Ob4h - Ob0h'};
+    cmb_list = [1 3;2 4;1 2;3 4];
+   frac_diff = nan(size(frac,1),size(cmb_list,1),length(rxn_frac));
+    for i=1:size(cmb_list,1)
+        for ii=1:length(rxn_frac)
+            frac_diff(:,i,ii) = frac(:,cmb_list(i,2),ii)-frac(:,cmb_list(i,1),ii);
+        end
+    end
+    [frac_diff_stat, stat_names] = calc_stat_mcmc(frac_diff);
+    stat_names = [stat_names,{'95% CI includes 0 or not'}];
+    data_tmp = {};
+    colnames_all = {};
+    for i=1:length(cmb_names)
+        frac_stat_now = reshape(frac_diff_stat(:,i,:),length(stat_names)-1,length(rxn_frac));
+        is_diff = (frac_stat_now(4,:) > 0 & frac_stat_now(5,:) > 0) |...
+            (frac_stat_now(4,:) < 0 & frac_stat_now(5,:) < 0);
+        str_diff = cell(size(is_diff));
+        for ii=1:length(is_diff)
+            if is_diff(ii)
+                str_diff(ii) = {'True'};
+            else
+                str_diff(ii) = {'False'};
+            end
+        end
+        colnames_now = cellfun(@(x) [ cmb_names{i} ' (' x ')'],stat_names,'UniformOutput',false);
+        colnames_all = [colnames_all,colnames_now];
+       data_tmp = [data_tmp, num2cell(frac_stat_now)', str_diff']; 
+    end
+    out_now_ = [rxn_frac', data_tmp]; 
+    out_now = [[{''}, colnames_all]; out_now_];
+   writecell(out_now,[savedir '/data_diff_WTob_' rxn_target '.csv']);
+   
     % plot
     frac_mu = reshape(mean(frac,1),num_g,length(idx_frac));
-    frac_std = reshape(frac_std,num_g,length(idx_frac));
+    frac_std = reshape(std(frac,[],1),num_g,length(idx_frac));
 
     fig = figure('visible','off');
     c = categorical(grp_names,grp_names);
@@ -115,4 +173,23 @@ function plot_frac_bar(rxn_frac,rxn_target,obj,savedir)
     saveas( gcf, [ savedir '/v_frac' rxn_target '.pdf' ] );
     close all;
 
+end
+
+
+function [stat, stat_names] = calc_stat_mcmc(tmp)
+    
+    stat_names = {'Median','Mean','SD',...
+        'Lower limit of 95% credible interval',...
+        'Upper limit of 95% credible interval'};
+    % calculate the following statistics from MCMC sample
+    % 'Median','Mean','SD'
+    % 'Lower limit of 95% credible interval'
+    % 'Upper limit of 95% credible interval'
+    stat_median = median(tmp,1);
+    stat_mean = mean(tmp,1);
+    stat_std = std(tmp,0,1);
+    stat_95lower = prctile(tmp,2.5,1);
+    stat_95upper = prctile(tmp,97.5,1);
+    stat = cat(1,stat_median,stat_mean,stat_std,stat_95lower,stat_95upper);
+    
 end
