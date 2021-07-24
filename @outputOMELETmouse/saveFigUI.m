@@ -19,8 +19,8 @@ function saveFigUI(obj,savedir)
 %     save_fig(loaddir,'Pgm2',angle_fixed,savedir);
     
     save_fig(loaddir,'PyrCycling',angle_fixed,savedir);
-    save_fig(loaddir,'GNG+Pyr',angle_fixed,savedir);
-%     save_fig(loaddir,'GNG',angle_fixed,savedir);
+%     save_fig(loaddir,'GNG+Pyr',angle_fixed,savedir);
+    save_fig(loaddir,'GNG',angle_fixed,savedir);
 %     save_fig(loaddir,'TCA',[100 15],savedir);
     
 end

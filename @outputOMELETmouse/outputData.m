@@ -2,9 +2,9 @@ function outputData(obj,savedir)
     
     mkdir(savedir);
     output_data(obj,'params',savedir);
+    output_data(obj,'fluxes',savedir);
     
     output_data(obj,'contributions',savedir);
-    output_data(obj,'fluxes',savedir);
     output_data(obj,'omics',savedir);
     
     
@@ -88,17 +88,37 @@ function output_data(obj,tbl_name,savedir)
             rxn_names = obj.model_data.out.rxn_names_include;
             
             % 1. metabolic flux in each condition
+            % reactions - GNG - pyruvate cycle - glycogenolysis - TCA
+           [~,idx_r_gng] = ismember({'Gpi1','Fbp1','Gpd1','Pgam1','Eno1'},rxn_names);
+           [~,idx_r_pyr] = ismember({'Pklr','Pcx','Pck1'},rxn_names);
+           [~,idx_r_glyc] = ismember({'Pgm2'},rxn_names);
+            [~,idx_r_tca] = ismember({'Cs','Sdha','Fh1','Mdh2','Glud1'},rxn_names);
             v_tmp = obj.par.v;
             [v_stat, stat_names] = calc_stat_mcmc(v_tmp);
+            idx_list = {idx_r_gng,idx_r_pyr,idx_r_glyc,idx_r_tca};
+            for i=1:length(idx_list)
+               v_now = v_tmp(:,:,idx_list{i});
+               v_out = [];
+               for g=1:num_g
+                   v_now_now = v_now(:,g,:);
+                   v_out = [v_out v_now_now(:)];
+               end
+               [v_stat_now, ~] = calc_stat_mcmc(v_out);
+               v_stat = cat(3,v_stat,v_stat_now);
+            end
             
             data_tmp = {};
             for i=1:num_g
-                v_stat_now = reshape(v_stat(:,i,:),length(stat_names),num_rc);
+                v_stat_now = reshape(v_stat(:,i,:),length(stat_names),num_rc+length(idx_list));
                 colnames_now = cellfun(@(x) [ grp_names{i} ' (' x ')'],stat_names,'UniformOutput',false);
                data_tmp = [data_tmp;colnames_now;num2cell(v_stat_now')]; 
             end
             data_list{1} = data_tmp;
-            rowname_list{1} = repmat([ {''};rxn_names],num_g,1);
+            rowname_list{1} = repmat([ {''};rxn_names;...
+                {'gluconeogenesis'};...
+                {'pyruvate cycle'};...
+                {'glycogenolysis'};...
+                {'TCA cycle'}],num_g,1);
             colname_list{1} = stat_names;
             
             % 2. fold change of metabolic flux between conditions
@@ -107,14 +127,19 @@ function output_data(obj,tbl_name,savedir)
             stat_names = [stat_names,{'Large increase (Fold change>1.5)'}];
             idx_cmb = [2 5 1 6];
             
-            data_fc = cell(num_rc,length(stat_names),length(idx_cmb));
+            data_fc = cell(num_rc+length(idx_list),length(stat_names),length(idx_cmb));
             colname_fc = cell(length(idx_cmb),length(stat_names));
             for i=1:length(idx_cmb)
                 fc_tmp = obj.fc_wtob(:,:,idx_cmb(i));
                 [fc_stat, ~] = calc_stat_mcmc(fc_tmp);
+                for ii=1:length(idx_list)
+                    fc_now = fc_tmp(:,idx_list{ii});
+                    [fc_stat_now,~] = calc_stat_mcmc(fc_now(:));
+                    fc_stat = [fc_stat fc_stat_now];
+                end
                 fc_mean = fc_stat(2,:);
-                fc_large = cell(1,num_rc);
-                for ii=1:num_rc
+                fc_large = cell(1,num_rc+length(idx_list));
+                for ii=1:(num_rc+length(idx_list))
                     if fc_mean(ii)>1.5
                         fc_large(ii) = {'True'};
                     else
@@ -132,7 +157,11 @@ function output_data(obj,tbl_name,savedir)
                    data_fc(:,:,j)];
             end
             
-            rowname_list{2} = repmat([ {''}; obj.model_data.out.rxn_names_include],length(idx_cmb),1);
+            rowname_list{2} = repmat([ {''};rxn_names;...
+                {'gluconeogenesis'};...
+                {'pyruvate cycle'};...
+                {'glycogenolysis'};...
+                {'TCA cycle'}],length(idx_cmb),1);
             colname_list{2} = stat_names;
             data_list{2} = data_tmp;
             
@@ -199,10 +228,10 @@ function output_data(obj,tbl_name,savedir)
            met_eff_list = obj.model_data.X.met.met_eff_list;
            
            % average of contributions in
-            % 1. gluconeogenesis + lactate and alanine metabolism
+            % 1. gluconeogenesis
             % 2. pyruvate cycle
             % 3. glycogenolysis + TCA cycle
-           [~,idx_r_gng] = ismember({'Gpi1','Fbp1','Gpd1','Pgam1','Eno1','Ldha','Gpt'},rxn_names);
+           [~,idx_r_gng] = ismember({'Gpi1','Fbp1','Gpd1','Pgam1','Eno1'},rxn_names);
            [~,idx_r_pyr] = ismember({'Pklr','Pcx','Pck1'},rxn_names);
            [~,idx_r_other] = ismember({'Pgm2','Cs','Sdha','Fh1','Mdh2','Glud1'},rxn_names);
            idx_list = {idx_r_gng,idx_r_pyr,idx_r_other};
@@ -351,7 +380,7 @@ function output_data(obj,tbl_name,savedir)
                    cellfun(@(x) [x ' (' sheet_list{i} ')'], s_cmb_names,'UniformOutput',false)];
             end
             data_list{end} = data_tmp;
-            rowname_list{end} = {'gluconeogenesis + lactate and alanine metabolism',...
+            rowname_list{end} = {'gluconeogenesis',...
                 'pyruvate cycle','glycogenolysis + TCA cycle'}';
             colname_list{end} = colnames_tmp;
             

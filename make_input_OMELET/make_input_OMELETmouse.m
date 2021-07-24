@@ -1,7 +1,7 @@
-function [X,D,out,init] = make_mouse_model(S_path,must_rxn,savedir)
+function [X,D,out,init] = make_input_OMELETmouse(S_path,must_rxn,savedir)
 %     make inputs for rstan (omics data and stoichiometric matrix)
 %     
-%     S_path: path to the .cxv file containing stoichiometric matrix and
+%     S_path: path to the .csv file containing stoichiometric matrix and
 %     information on cofactors and allosteric effectors
 %     e.g. S_OMELETmouse.csv
 %     
@@ -384,7 +384,7 @@ function [data_m2,data_p2,data_t2,is_data_m,is_data_p,is_data_t] = make_data_omi
     
 %%%%%%%%%%%%%%%%
 %     metabolome data
-    tbl_met = readtable('./data/metabolome.csv',...
+    tbl_met = readtable('../data/metabolome.csv',...
         'ReadRowNames',false,'ReadVariableNames',false);
     met_names_tmp = tbl_met.Var1(5:end);
     met_names_tmp{ismember(met_names_tmp,'G3P')} = 'Glycerol 3P';

@@ -67,8 +67,10 @@ classdef outputOMELETmouse < handle
         
         % Figure 4B
         function makeFig4B(obj,savedir)
+            % difference in metabolic flux between reactions
+            calcDiffFlux(obj,[savedir '/Fig4B_supp']);
             % fold change of metabolic fluxes (ob / WT)
-            calcFCWTob(obj,[savedir '/Fig4B']);
+            calcFCWTob(obj,[savedir '/Fig4B']);        
         end
         
         % Figures 4C and 4D
