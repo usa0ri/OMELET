@@ -14,13 +14,13 @@ function saveFigUI(obj,savedir)
 %         save_fig(loaddir,['edges_empty_' num2str(edge_size(n))],angle_fixed,savedir);
 %     end
     
-%     save_fig(loaddir,'Pklr',angle_fixed,savedir);
+    save_fig(loaddir,'Pklr',angle_fixed,savedir);
 %     save_fig(loaddir,'Gpi1',angle_fixed,savedir);
 %     save_fig(loaddir,'Pgm2',angle_fixed,savedir);
     
     save_fig(loaddir,'PyrCycling',angle_fixed,savedir);
-    save_fig(loaddir,'GNG+Pyr',angle_fixed,savedir);
-%     save_fig(loaddir,'GNG',angle_fixed,savedir);
+%     save_fig(loaddir,'GNG+Pyr',angle_fixed,savedir);
+    save_fig(loaddir,'GNG',angle_fixed,savedir);
 %     save_fig(loaddir,'TCA',[100 15],savedir);
     
 end

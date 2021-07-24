@@ -18,7 +18,7 @@ make_input_OMELETmouse(S_path,must_rxn,savedir);
 % make Figures
 
 data_path = './data';
-rstan_path = './OMELET_rstan/result/OMELETmouse';
+rstan_path = './OMELET_rstan/result/result_mouse';
 model_path = './OMELET_rstan/input_OMELETmouse/model_data.mat';
 
 obj = outputOMELETmouse(rstan_path,model_path,data_path);

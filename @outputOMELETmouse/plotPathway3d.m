@@ -28,7 +28,7 @@ function [data_layers,data_edges] = make_data_layers(obj)
         data_met(ismember(met_names,'Pyruvate'),idx_g(g,1):idx_g(g,2))...
             = mean(obj.par.c_Pyr_out(:,g));
         data_met(ismember(met_names,'OAA'),idx_g(g,1):idx_g(g,2))...
-            = mean(obj.par.c_Pyr_out(:,g));
+            = mean(obj.par.c_OAA_out(:,g));
     end
     
     % cofactors and allosteric effectors
