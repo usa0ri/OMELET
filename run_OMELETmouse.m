@@ -3,10 +3,19 @@
 
 addpath ./make_input_OMELET
 S_path = './make_input_OMELET/S_OMELETmouse.csv';
-must_rxn = {'Pgm2', 'Tpi1', 'Ldha', 'Gpt','Pcx','Cs','Glud1'};
-savedir = './OMELET_rstan/input_OMELETmouse';
+savedir = './OMELET_rstan/input_OMELETmouse_tmp';
 mkdir(savedir);
-make_input_OMELETmouse(S_path,must_rxn,savedir);
+% choose indeces from Index in metabolome.csv, proteome.csv, transcriptome.csv
+% 1: WT in the fasting state
+% 2: WT 4h after oral glucose administration
+% 3: ob/ob in the fasting state
+% 4: ob/ob 4h after oral glucose administration
+idx_smplgrp = [1 2 3 4];
+make_input_OMELETmouse(S_path,savedir);
+
+% make .stan + initf_*.R
+fname = 'OMELETmouse';
+make_rstan_model(savedir,fname);
 
 %%%%%%%%%%%%%%%%%%%
 

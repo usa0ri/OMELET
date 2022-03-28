@@ -1,12 +1,15 @@
 
 source("my_rstan_OMELETmouse.R")
+data_path = "./input_OMELETmouse"
+source(paste0(data_path,"/test_OMELETmodel_mkdata.R"))
 
 save_dir = "./result/result_mouse"
 dir.create("./result")
-data_path = "./input_OMELETmouse"
-initf_path <- "./initf_OMELETmouse.R"
-smodel = "OMELETmouse.stan"
 dir.create(save_dir)
+
+initf_path <- "./initf_OMELETmouse.R"
+source(initf_path)
+smodel = paste0(data_path,"/test_OMELETmodel.stan")
 
 # test
 thin <- 1
@@ -15,20 +18,17 @@ max_treedepth <- 10
 c_v <- 0.1
 c_e <- 0.01
 v_max <- 5
-grp <- c(1,2,3,4)
-pair <- FALSE
-res <- my_stan_multi(save_dir,data_path,initf_path,smodel,
-                     1000,500,thin,adapt_delta,max_treedepth,
-                     c_v,c_e,v_max,
-                     grp,pair)
+data <- mkdata_now(data_path,c_v,c_e,v_max)
+res <- my_stan(save_dir,data_path,initf_path,smodel,
+               1000,500,thin,adapt_delta,max_treedepth,
+               c_v,c_e,v_max)
 # Settings in Uematsu et al.
 #thin <- 2
 #adapt_delta <- 0.99
 #max_treedepth <- 20
 #res <- my_stan_multi(save_dir,data_path,initf_path,smodel,
 #                     20000,10000,thin,adapt_delta,max_treedepth,
-#                     c_v,c_e,v_max,
-#                     grp,pair)
+#                     c_v,c_e,v_max)
 
 # if you want to view the result by shinystan, run the following.
 # source("my_rstan_opt.R")

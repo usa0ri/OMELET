@@ -1,6 +1,6 @@
 library(rstan)
-# library(shinystan)
-# library(bayesplot)
+library(shinystan)
+library(bayesplot)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 
@@ -26,124 +26,6 @@ mkdata_vec <- function(load_dir,fname){
   return(as.vector(list_tmp$V1))
 }
 
-mkdata_multi <- function(load_dir,c_v,c_e,v_max,grp,pair){
-  int_list_tmp <- mkdata_char(load_dir,"/int_list.txt")
-  is_irrev_tmp <- mkdata_vec(load_dir,"/is_irrev.txt")
-  idx_include_tmp <- mkdata_vec(load_dir,"/idx_include.txt")
-  data = list(num_r=as.integer(int_list_tmp[int_list_tmp[,1]=="num_r",2]),
-              num_ri=as.integer(int_list_tmp[int_list_tmp[,1]=="num_ri",2]),
-              num_rd=as.integer(int_list_tmp[int_list_tmp[,1]=="num_rd",2]),
-              num_rc=as.integer(int_list_tmp[int_list_tmp[,1]=="num_rc",2]),
-              num_m=as.integer(int_list_tmp[int_list_tmp[,1]=="num_m",2]),
-              num_mc=as.integer(int_list_tmp[int_list_tmp[,1]=="num_rd",2]),
-              num_b=as.integer(int_list_tmp[int_list_tmp[,1]=="num_b",2]),
-              num_ri_wt=as.integer(int_list_tmp[int_list_tmp[,1]=="num_ri_wt",2]),
-              num_smpl=as.integer(int_list_tmp[int_list_tmp[,1]=="num_smpl",2]),
-              num_g=as.integer(int_list_tmp[int_list_tmp[,1]=="num_g",2]),
-              num_p=as.integer(int_list_tmp[int_list_tmp[,1]=="num_p",2]),
-              S=mkdata(load_dir,"/S.txt"),
-              N=mkdata(load_dir,"/N.txt"),
-              Nu=mkdata(load_dir,"/Nu.txt"),
-              Ne=mkdata(load_dir,"/Ne.txt"),
-              Sp=mkdata(load_dir,"/Sp.txt"),
-              Sm=mkdata(load_dir,"/Sm.txt"),
-              idx_calc=mkdata_vec(load_dir,"/idx_calc.txt"),
-              idx_g=mkdata(load_dir,"/idx_g.txt"),
-              idx_p=mkdata_vec(load_dir,"/idx_p.txt"),
-              enz=mkdata(load_dir,"/enz.txt"),
-              sub=mkdata(load_dir,"/sub1.txt"),
-              pro=mkdata(load_dir,"/pro1.txt"),
-              rna=mkdata(load_dir,"/rna.txt"),
-              is_irrev=is_irrev_tmp[idx_include_tmp],
-              c_v=c_v,
-              c_e=c_e,
-              v_max=v_max,
-              enz_eff=mkdata(load_dir,"/enz_eff.txt"),
-              rna_eff=mkdata(load_dir,"/rna_eff.txt"),
-              met_eff=mkdata(load_dir,"/met_eff.txt"))
-  # extract only the target group samples
-  idx_g_now <- data$idx_g[grp,]
-  data$num_g <- length(grp)
-  idx_g <- c()
-  for(g in 1:data$num_g){
-    idx_g <- append(idx_g,idx_g_now[g,1]:idx_g_now[g,2])
-  }
-  data$num_smpl <- length(idx_g)
-  # normalize data
-  enz <- matrix(0,data$num_rc,data$num_smpl)
-  sub <- matrix(1,data$num_rc,data$num_smpl)
-  pro <- matrix(1,data$num_rc,data$num_smpl)
-  rna <- matrix(0,data$num_rc,data$num_smpl)
-  for(r in 1:data$num_rc){
-    if(mean(data$enz[r,idx_g]) != 0){
-      enz[r,] <- data$enz[r,idx_g]/mean(data$enz[r,idx_g])
-    }
-    if(mean(exp(data$sub[r,idx_g]))-1<1e-1){
-      sub[r,] <- log(exp(data$sub[r,idx_g])/mean(exp(data$sub[r,idx_g])))
-    }
-    if(mean(data$pro[r,idx_g])-1<1e-1){
-      pro[r,] <- log(exp(data$pro[r,idx_g])/mean(exp(data$pro[r,idx_g])))
-    }
-    rna[r,] <- data$rna[r,idx_g]/mean(data$rna[r,idx_g])
-    }
-  enz_eff <- matrix(0,1,data$num_smpl)
-  rna_eff <- matrix(0,1,data$num_smpl)
-  enz_eff[1,] <- data$enz_eff[1,idx_g]/mean(data$enz_eff[1,idx_g])
-  rna_eff[1,] <- data$rna_eff[1,idx_g]/mean(data$rna_eff[1,idx_g])
-  data$enz <- enz
-  data$sub <- sub
-  data$pro <- pro
-  data$rna <- rna
-  data$enz_eff <- array(enz_eff,dim=c(1,data$num_smpl))
-  data$rna_eff <- array(rna_eff,dim=c(1,data$num_smpl))
-  
-  met_eff <- matrix(0,nrow(data$met_eff),data$num_smpl)
-  for(i in 1:nrow(data$met_eff)){
-    met_eff[i,] <- log(exp(data$met_eff[i,idx_g])/mean(exp(data$met_eff[i,idx_g])))
-    # met_eff[i,] <- exp(data$met_eff[i,idx_g])/mean(exp(data$met_eff[i,idx_g]))
-  }
-  data$met_eff <- met_eff
-  
-  idx_tmp <- 1
-  idx_g2 <- matrix(0,data$num_g,2)
-  for(g in 1:data$num_g){
-    idx_g2[g,1] <- idx_tmp;
-    idx_g2[g,2] <- idx_tmp + idx_g_now[g,2]-idx_g_now[g,1]
-    idx_tmp <- idx_tmp + idx_g_now[g,2]-idx_g_now[g,1] + 1
-  }
-  data$idx_g <- idx_g2
-  
-  idx_p_ <- seq(1,data$num_rc)
-  data$idx_p_ <- idx_p_[(idx_p_!=data$idx_p[1]) & (idx_p_!=data$idx_p[2])]
-  idx_b <- rep(1,data$num_rc)
-  idx_b[data$is_irrev==1] = 0
-  idx_b[12] <- 1
-  idx_b[16] <- 0
-  data$idx_b <- which(idx_b==1)
-  
-  if(pair){
-    data$num_wt <- idx_g2[1,2]-idx_g2[1,1]+1
-    data$num_ob <- idx_g2[2,2]-idx_g2[2,1]+1
-    data$enz_wt_tmp <- data$enz[,idx_g2[1,1]:idx_g2[1,2]]
-    data$enz_ob_tmp <- data$enz[,idx_g2[2,1]:idx_g2[2,2]]
-    data$sub_wt <- data$sub[,idx_g2[1,1]:idx_g2[1,2]]
-    data$sub_ob <- data$sub[,idx_g2[2,1]:idx_g2[2,2]]
-    data$pro_wt <- data$pro[,idx_g2[1,1]:idx_g2[1,2]]
-    data$pro_ob <- data$pro[,idx_g2[2,1]:idx_g2[2,2]]
-    data$rna_wt <- data$rna[,idx_g2[1,1]:idx_g2[1,2]]
-    data$rna_ob <- data$rna[,idx_g2[2,1]:idx_g2[2,2]]
-    data$met_eff_wt <- data$met_eff[,idx_g2[1,1]:idx_g2[1,2]]
-    data$met_eff_ob <- data$met_eff[,idx_g2[2,1]:idx_g2[2,2]]
-    data$enz_eff_wt <- array(data$enz_eff[,idx_g2[1,1]:idx_g2[1,2]],dim=c(1,data$num_wt))
-    data$enz_eff_ob <- array(data$enz_eff[,idx_g2[2,1]:idx_g2[2,2]],dim=c(1,data$num_ob))
-    data$rna_eff_wt <- array(data$rna_eff[,idx_g2[1,1]:idx_g2[1,2]],dim=c(1,data$num_wt))
-    data$rna_eff_ob <- array(data$rna_eff[,idx_g2[2,1]:idx_g2[2,2]],dim=c(1,data$num_ob))
-  }
-  
-  return(data)
-}
-
-
 WAIC <- function(fit){
   log_lik <- rstan::extract(fit)$log_lik
   num_r <- dim(log_lik)[2]
@@ -160,10 +42,10 @@ WAIC <- function(fit){
   return(list(waic=waic,waic_r=waic_r,lppd_r=lppd_r,p_waic_r=p_waic_r))
 }
 
-my_stan_multi <- function(save_dir,data_path,initf_path,smodel,
+my_stan <- function(save_dir,data_path,initf_path,smodel,
                         iter,warmup,thin,adapt_delta,max_treedepth,
-                        c_v,c_e,v_max,grp,pair){
-  data <- mkdata_multi(data_path,c_v,c_e,v_max,grp,pair)
+                        c_v,c_e,v_max){
+  data <- mkdata_now(data_path,c_v,c_e,v_max)
   save(data,file=paste(save_dir,'/data.RData',sep=""))
   source(initf_path)
   dir.create(save_dir)
@@ -186,31 +68,17 @@ my_stan_multi <- function(save_dir,data_path,initf_path,smodel,
   return(list(fit=fit,waic=waic))
 }
 
-my_stan_transform <- function(fit,data_path,grp){
+my_stan_transform <- function(fit,data,myfun_now){
   ms <- rstan::extract(fit)
-  data <- mkdata_multi(data_path,0.1,0.01,10,grp,FALSE)
-  
   iter <- nrow(ms$a)
+  
+  source(myfun_now)
+  mu_vi_wt_tmp_ <- calc_mu_vi_wt(ms,data)
   
   # mu_vi
   mu_vi <- array(0,dim=c(iter,data$num_g,data$num_ri))
-  mu_vi_tmp <- ms["mu_vi_wt_tmp"][[1]]
-  v_Pcx <- ms["v_Pcx"][[1]]
-  v_Cs <- ms["v_Cs"][[1]]
-  mu_vi_g <- ms["mu_vi_g"][[1]]
-  mu_vi[,2:data$num_g,] <- mu_vi_g
-  if(dim(mu_vi_tmp)[2]==5){
-    mu_vi[,1,c(1:4,7)] <- mu_vi_tmp 
-  }else{
-    mu_vi[,1,1:4] <- mu_vi_tmp
-    for(i in 1:iter){
-      mu_vi[i,1,7] <- 1-sum(mu_vi_tmp[i,]) 
-    }
-  }
-  
-  mu_vi[,1,5] <- v_Pcx
-  mu_vi[,1,6] <- v_Cs
-  
+  mu_vi[,1,] <- mu_vi_wt_tmp_
+  mu_vi[,2:data$num_g,] <- ms["mu_vi_g"][[1]]
   # mu_v
   mu_v <- array(0,dim=c(iter,data$num_g,data$num_rc))
   for(i in 1:iter){
@@ -230,64 +98,52 @@ my_stan_transform <- function(fit,data_path,grp){
   idx_b <- rep(1,data$num_rc)
   idx_b[data$is_irrev==1] <- 0
   idx_b[data$is_irrev==1] = 0
-  idx_b[12] <- 1
-  idx_b[16] <- 0
   idx_tmp <- which(idx_b==1)
   b <- array(0,dim=c(iter,data$num_rc))
   b[,idx_tmp] <- -b_tmp
-  b[,12] <- -b[,12]
   
   # r_p_all
-  r_p <- ms["r_p"][[1]]
-  r_p_tmp <- ms["r_p_tmp"][[1]]
   r_p_all <- array(0,dim=c(iter,data$num_g,data$num_rc))
-  sum_r <- matrix(0,nrow = iter,ncol=2)
-  for(g in 1:(data$num_g-1)){
-    r_p_all[,g,] = r_p[,g,];
-    for(p in 1:data$num_p){
-      sum_r[,p] <- sum_r[,p] + r_p[,g,data$idx_p[p]]*sum( data$rna[ data$idx_p[p], data$idx_g[g,1]:data$idx_g[g,2] ] )
+  if(!is.null(ms$r_p_tmp)){
+    r_p <- ms["r_p"][[1]]
+    r_p_tmp <- ms["r_p_tmp"][[1]]
+    sum_r <- matrix(0,nrow = iter,ncol=2)
+    for(g in 1:(data$num_g-1)){
+      r_p_all[,g,] = r_p[,g,];
+      for(p in 1:data$num_p){
+        sum_r[,p] <- sum_r[,p] + r_p[,g,data$idx_p[p]]*sum( data$rna[ data$idx_p[p], data$idx_g[g,1]:data$idx_g[g,2] ] )
+      }
     }
-  }
-  r_p_all[,data$num_g,data$idx_p_] = r_p_tmp;
-  for(p in 1:data$num_p){
-    r_p_all[,data$num_g,data$idx_p[p]] = -sum_r[,p] / sum( data$rna[data$idx_p[p], data$idx_g[data$num_g,1]:data$idx_g[data$num_g,2]] );
+    r_p_all[,data$num_g,data$idx_p_] = r_p_tmp;
+    for(p in 1:data$num_p){
+      r_p_all[,data$num_g,data$idx_p[p]] = -sum_r[,p] / sum( data$rna[data$idx_p[p], data$idx_g[data$num_g,1]:data$idx_g[data$num_g,2]] );
+    }
+  }else if(is.null(ms$r_p)){
+    r_p_all <- ms["r_p"][[1]]
   }
   
   # enz
-  enz <- data$enz
-  enz_eff <- data$enz_eff
-  enz_out <- array(0,dim=c(iter,data$num_rc,data$num_smpl))
-  y <- ms["y"][[1]]
-  for(i in 1:iter){
-    enz_out[i,13,] <- enz[13,] * enz_eff
-    enz_out[i,data$idx_p_,] <- enz[data$idx_p_,]
-    ###############
-    for(g in 1:data$num_g){
-      for(p in 1:data$num_p){
-        enz_out[i,data$idx_p[p],data$idx_g[g,1]:data$idx_g[g,2]] <-
-          data$rna[data$idx_p[p],data$idx_g[g,1]:data$idx_g[g,2]]*(1+r_p_all[i,g,data$idx_p[p]])
+  enz_pred <- ms$enz_pred
+  rna_pred <- array(0,dim=c(iter,data$num_rx,data$num_smpl))
+  if(!is.null(ms$rna_pred)){
+    rna_pred <- ms$rna_pred
+  }
+
+  # met_est
+  c_out <- array(0,dim=c(iter,data$num_met_est,data$num_g))
+  if(!is.null(ms$met_est)){
+    sum_c <- matrix(0,nrow = iter,ncol=data$num_met_est)
+    met_est <- ms$met_est
+    for(c in 1:data$num_met_est){
+      for(g in 1:(data$num_g-1)){
+        sum_c[,c] <- sum_c[,c] + met_est[,c,g]*(data$idx_g[g,2]-data$idx_g[g,1]+1);
+      }
+      for(i in 1:iter){
+        c_out[i,c,data$num_g] <- (data$num_smpl-sum_c[i,c]) / (data$idx_g[data$num_g,2]-data$idx_g[data$num_g,1]+1)
       }
     }
-    
   }
-  
-  # c_OAA, c_Pyr
-  sum_c <- matrix(0,nrow = iter,ncol=2)
-  c_OAA <- ms$c_OAA
-  c_Pyr <- ms$c_Pyr
-  c_OAA_out <- array(0,dim=c(iter,data$num_g))
-  c_Pyr_out <- array(0,dim=c(iter,data$num_g))
-  for(g in 1:(data$num_g-1)){
-    sum_c[,1] <- sum_c[,1] + c_OAA[,g]*(data$idx_g[g,2]-data$idx_g[g,1]+1);
-    sum_c[,2] <- sum_c[,2] + c_Pyr[,g]*(data$idx_g[g,2]-data$idx_g[g,1]+1);
-    c_OAA_out[,g] <- c_OAA[,g]
-    c_Pyr_out[,g] <- c_Pyr[,g]
-  }
-  for(i in 1:iter){
-    c_OAA_out[i,data$num_g] <- (data$num_smpl-sum_c[i,1]) / (data$idx_g[data$num_g,2]-data$idx_g[data$num_g,1]+1)
-    c_Pyr_out[i,data$num_g] <- (data$num_smpl-sum_c[i,2]) / (data$idx_g[data$num_g,2]-data$idx_g[data$num_g,1]+1)
-  }
-  
+
   # output
   ms_out <- ms
   ms_out$mu_vi <- mu_vi
@@ -295,9 +151,115 @@ my_stan_transform <- function(fit,data_path,grp){
   ms_out$mean_v <- mean_v
   ms_out$b <- b
   ms_out$r_p_all <- r_p_all
-  ms_out$enz_out <- enz_out
-  ms_out$c_OAA_out <- c_OAA_out
-  ms_out$c_Pyr_out <- c_Pyr_out
+  ms_out$enz_out <- enz_pred
+  ms_out$c_out <- c_out
   
   return(ms_out)
+}
+
+output_data <- function(ms,save_dir){
+  param_list <- names(ms)
+  for(par in param_list){
+    ms_now <- ms[par][[1]]
+    iter <- dim(ms_now)[1]
+    ndim <- length(dim(ms_now))
+    if(ndim==1){
+      write(ms_now,file=paste0(save_dir,"/",par,".txt"),ncolumns = 1)
+    }else if(ndim==2){
+      write(t(ms_now),file=paste0(save_dir,"/",par,".txt"),ncolumns = dim(ms_now)[2])
+    }else{
+      for(i in 1:dim(ms_now)[2]){
+        ms_now2 <- ms_now[,i,]
+        write(t(ms_now2),file=paste0(save_dir,"/",par,".txt"),ncolumns = dim(ms_now2)[2],append = TRUE)
+      }
+    }
+  }
+}
+
+dens_flux <- function(pars_plot,ms,data_path,col_list1,col_list2,save_dir){
+  for(par in pars_plot){
+    ms_now <- ms[par][[1]]
+    min_now <- floor(min(ms_now))
+    max_now <- ceiling(max(ms_now))
+    idx_include <- mkdata_vec(data_path,"/idx_include.txt")
+    
+    if(par=="v"||par=="a"||par=="b"||par=="r_p_all"){
+      rxn_names <- mkdata_vec(data_path,"/rxn_names_include.txt")
+      num_sub <- length(rxn_names)
+    }else if(par=="mu_vi"){
+      rxn_names <- mkdata_vec(data_path,"/rxn_names_indflux.txt")
+      num_sub <- length(rxn_names)
+    }
+    
+    pdf(paste0(save_dir, "/dens_",par,".pdf"),width=5,height=num_sub*1.5)
+    par(mar = c(2,4,2,2))#lower,left,upper,right
+    par(mfrow=c(num_sub,1))
+    # if parameters are 3 dimensions
+    if(length(dim(ms_now))>2 && num_sub==dim(ms_now)[3]){
+      for(r in 1:num_sub){
+        ms_now_now <- ms_now[,,r]
+        for(g in 1:dim(ms_now)[2]){
+          d <- density(ms_now_now[,g])
+          if(g==1){
+            plot(d,xlim=c(min_now,max_now),main=rxn_names[r],xlab="",cex=5)
+            polygon(d,col=col_list2[g],border=col_list1[g]) 
+          }else{
+            par(new=T)
+            polygon(d,col=col_list2[g],border=col_list1[g]) 
+            # plot(d,xlim=c(min_now,max_now),cex=5,add=T,axis=F)
+          }
+        }
+      }
+    }else if(num_sub==dim(ms_now)[2]){
+      for(i in 1:ncol(ms_now)){
+        d <- density(ms_now[,i])
+        m_now <- median(ms_now[,i])
+        sd_now <- sd(ms_now[,i])
+        main_now <- paste0(rxn_names[i]," (median=", round(m_now,2), ", sd=", round(sd_now,2),")" )
+        plot(d,xlim=c(min_now,max_now),main=main_now,xlab="",cex=5)
+        polygon(d,col="grey")
+      }
+    }
+    dev.off()
+  }
+}
+
+
+trace_param <- function(fit,save_dir,par,w_now,h_now){
+  ms <- rstan::extract(fit)
+  # param_list <- names(ms)
+  # for(par in param_list){
+  # if(par != "log_lik" && par != "y" && par !="x" && par != "y_eff" &&
+  # par != "enz_pred" && par != "enz_pred2"
+  # ){
+  dim_tmp <- dim(ms[[par]])
+  ### traceplot
+  pdf(paste0(save_dir, "/traceplot_", par ,".pdf"),width=w_now,height=h_now)
+  plot_now <- traceplot(fit, pars=par,inc_warmup=T)
+  print(plot_now)
+  dev.off()
+  # }
+  # }
+}
+
+ac_param <- function(fit,save_dir,par,w_now,h_now){
+  ms <- rstan::extract(fit)
+  # param_list <- names(ms)
+  # for(par in param_list){
+  # if(par != "log_lik" && par != "y" && par !="x" && par != "y_eff" &&
+  # par != "enz_pred" && par != "enz_pred2"
+  # ){
+  dim_tmp <- dim(ms[[par]])
+  ### traceplot
+  pdf(paste0(save_dir, "/acplot_", par ,".pdf"),width=w_now,height=h_now)
+  plot_now <- stan_ac(fit, pars=par,separate_chains = F)
+  print(plot_now)
+  dev.off()
+  # }
+  # }
+}
+
+output_summary <- function(fit,save_dir){
+  tmp <- summary(fit)$summary
+  write.csv(tmp,paste0(save_dir,'/summary_out.csv'))
 }
