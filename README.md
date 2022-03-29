@@ -193,7 +193,7 @@ Load the R functions needed to run OMELET:
 source("my_rstan_OMELETmouse.R")
 ```
 
-Specify the path to the input data:
+Specify the path to the input data (e.g., the input data used in Uematsu et al. are under `./OMELET/OMELET_rstan/model059_0h4h`):
 ```R
 data_path = "./model059_0h4h"
 ```
