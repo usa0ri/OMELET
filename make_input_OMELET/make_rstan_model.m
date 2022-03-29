@@ -121,18 +121,18 @@ function make_rstan_model(loaddir,fname)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % make initf
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    fid = fopen([loaddir '/initf_' fname '.txt'],'w');
+    fid = fopen([loaddir '/' fname '_initf.txt'],'w');
     prep_initf(fid,out,init,...
         is_exist_met_eff,is_exist_rna,is_exist_inferred_enz,is_exist_met_est);
     
-    copyfile([loaddir '/initf_' fname '.txt'],[loaddir '/initf_' fname '.R']);
+    copyfile([loaddir '/' fname '_initf.txt'],[loaddir '/' fname '_initf.R']);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % make mkdata
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    fid = fopen([loaddir '/mkdata_' fname '.txt'],'w');
+    fid = fopen([loaddir '/' fname '_mkdata.txt'],'w');
     prep_mkdata(fid,out);
     
-    copyfile([loaddir '/mkdata_' fname '.txt'],[loaddir '/mkdata_' fname '.R']);
+    copyfile([loaddir '/' fname '_mkdata.txt'],[loaddir '/' fname '_mkdata.R']);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 end

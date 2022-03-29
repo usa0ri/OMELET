@@ -4,12 +4,12 @@ function makeFigS1(obj,savedir)
     mkdir(savedir);
 
     % time-course of blood glucose and insulin
-    dat_csv = 'blood_glucose';
-    plot_timecourse(obj,dat_csv,savedir);
-
-    dat_csv = 'blood_insulin';
-    plot_timecourse(obj,dat_csv,savedir);
-    
+%     dat_csv = 'blood_glucose';
+%     plot_timecourse(obj,dat_csv,savedir);
+% 
+%     dat_csv = 'blood_insulin';
+%     plot_timecourse(obj,dat_csv,savedir);
+%     
     % PCA
     plot_PCA(obj,savedir);
     

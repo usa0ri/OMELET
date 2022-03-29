@@ -6,7 +6,7 @@ function calcDiffFlux(obj,savedir)
     par = obj.par;
 
     fluxnames = model_data.X.rxn.rxn_names_include;
-    num_rc = model_data.X.num.num_rc;
+    num_rc = model_data.X.num.num_include;
     iter = size(par.a,1);
     grp_names = model_data.grp_names;
     num_g = length(model_data.grp_names);

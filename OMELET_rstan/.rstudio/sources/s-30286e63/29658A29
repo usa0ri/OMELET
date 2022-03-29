@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1648553927779.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "29658A29",
+    "lastKnownWriteTime" : 1648547667,
+    "last_content_update" : 1648547667,
+    "path" : "~/my_rstan_OMELETmouse.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "70,21",
+        "scrollLine" : "60"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

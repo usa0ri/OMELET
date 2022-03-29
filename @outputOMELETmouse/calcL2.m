@@ -71,7 +71,7 @@ end
 function calc_L2(data,obj,savedir)
     
     x = data.cont;
-    idx_cmb = [1 6;2 5];
+    idx_cmb = obj.fig_info.idx_cmb;
     num_cmb = size(idx_cmb,1);
 %     L1 = nan(data.dim1,data.dim3,num_cmb);
     L2 = nan(data.dim1,data.dim3,num_cmb);
@@ -86,7 +86,7 @@ end
 
 function plot_Lnorm(L,data,obj,savedir)
     
-    idx_cmb = [1 6;2 5];
+    idx_cmb = obj.fig_info.idx_cmb;
     num_cmb = size(idx_cmb,1);
 
     % estimate distribution of L1-like distance

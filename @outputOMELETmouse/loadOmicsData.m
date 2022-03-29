@@ -19,38 +19,55 @@ function loadOmicsData(obj)
     smpltype = table2array(tbl_met(1:3,2:end))';
     smpltype_grpidx = cellfun(@(x) str2double(x),table2array(tbl_met(4,2:end)),...
         'UniformOutput',true);
+    idx_smplgrp = obj.model_data.out.idx_smplgrp;
+    idx_import = [];
+    smpltype_grpidx_import = [];
+    for g=1:length(idx_smplgrp)
+       idx_import = [idx_import find(smpltype_grpidx == idx_smplgrp(g))];
+       smpltype_grpidx_import = [smpltype_grpidx_import...
+           repmat(idx_smplgrp(g),1,sum(smpltype_grpidx == idx_smplgrp(g)))];
+    end
+    num_smpl = length(idx_import);
     
-    col_now = [     0    90/255    1.0000;...
-           77/255    196/255    1.0000;...
-           1.0000         0         0;...
-           1.0000    128/255    130/255];
-       
-    %%%%%%%%%%%%%%%%%%
-%     plasma glucose and insulin after oral glucose adminsitration
-    tbl_insulin = readtable([obj.data_path '/blood_insulin.csv'],...
-        'ReadRowNames',false,'ReadVariableNames',false); 
-    tbl_glucose = readtable([obj.data_path '/blood_glucose.csv'],...
-        'ReadRowNames',false,'ReadVariableNames',false); 
-    timepoints = table2array(tbl_insulin(1,2:end));
-%     timepoints2 = table2array(tbl_glucose(1,2:end));
-    smpltype_plasma = [repmat({'WT'},1,5) repmat({'ob'},1,5)];
-    data_insulin = table2array(tbl_insulin(2:end,2:end));
-    data_glucose = table2array(tbl_glucose(2:end,2:end));
-   
+    % choose variables
+    [~,idx_met] = ismember(obj.model_data.out.met_names,var_met);
+    [~,idx_pro] = ismember(obj.model_data.out.rxn_names,var_pro);
+    [~,idx_rna] = ismember(obj.model_data.out.rxn_names,var_rna);
+    data_met_out = nan(length(idx_met),num_smpl);
+    data_pro_out = nan(length(idx_pro),num_smpl);
+    data_rna_out = nan(length(idx_rna),num_smpl);
+    data_met_out(idx_met~=0,:) = data_met(nonzeros(idx_met),idx_import);
+    data_pro_out(idx_pro~=0,:) = data_pro(nonzeros(idx_pro),idx_import);
+    data_rna_out(idx_rna~=0,:) = data_rna(nonzeros(idx_rna),idx_import);
+    var_met_out = obj.model_data.out.met_names;
+    var_pro_out = obj.model_data.out.rxn_names;
+    var_rna_out = obj.model_data.out.rxn_names;
+    
+%     %%%%%%%%%%%%%%%%%%
+% %     plasma glucose and insulin after oral glucose adminsitration
+%     tbl_insulin = readtable([obj.data_path '/blood_insulin.csv'],...
+%         'ReadRowNames',false,'ReadVariableNames',false); 
+%     tbl_glucose = readtable([obj.data_path '/blood_glucose.csv'],...
+%         'ReadRowNames',false,'ReadVariableNames',false); 
+%     timepoints = table2array(tbl_insulin(1,2:end));
+% %     timepoints2 = table2array(tbl_glucose(1,2:end));
+%     smpltype_plasma = [repmat({'WT'},1,5) repmat({'ob'},1,5)];
+%     data_insulin = table2array(tbl_insulin(2:end,2:end));
+%     data_glucose = table2array(tbl_glucose(2:end,2:end));
+%    
     %%%%%%%%%%%%%%%%%%
 %     output
-    omics_data.var_omics = {var_met,var_pro,var_rna};
-    omics_data.data_omics = {data_met',data_pro',data_rna'};
+    omics_data.var_omics = {var_met_out,var_pro_out,var_rna_out};
+    omics_data.data_omics = {data_met_out',data_pro_out',data_rna_out'};
     omics_data.name_omics = {'metabolite','protein','transcript'};
     omics_data.smpltype = smpltype;
     omics_data.smpltype_grpidx = smpltype_grpidx;
-    omics_data.col = col_now;
     
-    omics_data.data_insulin = data_insulin;
-    omics_data.data_glucose = data_glucose;
-    omics_data.smpltype_plasma = smpltype_plasma;
-    omics_data.timepoitns = timepoints;
-    
+%     omics_data.data_insulin = data_insulin;
+%     omics_data.data_glucose = data_glucose;
+%     omics_data.smpltype_plasma = smpltype_plasma;
+%     omics_data.timepoitns = timepoints;
+%     
     obj.omics_data = omics_data;
     
 end

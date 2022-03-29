@@ -3,7 +3,7 @@ function makeFig2(obj,savedir_)
     savedir = [savedir_ '/Fig2'];
     mkdir(savedir);
     
-   obj.model_data.col = obj.omics_data.col;
+   obj.model_data.col = obj.model_data.col;
    var_omics = obj.omics_data.var_omics;
    data_omics = obj.omics_data.data_omics;
    name_omics = obj.omics_data.name_omics;
@@ -36,6 +36,15 @@ function plot_bar_omics(data_now,var_now,name_now,info,savedir)
 
     bar_col = info.col;
     bar_names = var_now;
+    
+    %%%%%%%%%%%%%%
+    % reorder sample index
+    idx_s = info.idx_g_reorder;
+    bar_input = bar_input(idx_s,:);
+    err_input = err_input(idx_s,:);
+    bar_col = bar_col(idx_s,:);
+    %%%%%%%%%%%%%%
+    
 
     plot_errbars(bar_input,err_input,bar_col,bar_names,name_now,savedir);
 
@@ -56,6 +65,14 @@ function plot_indv_bar_omics(data_now,var_now,name_now,info,savedir)
     end
     % assert(all(bar_input(1,:)-1<1e-3));
 
+    %%%%%%%%%%%%%%
+    % reorder sample index
+    idx_s = info.idx_g_reorder;
+    bar_input = bar_input(idx_s,:);
+    errorbar_input = errorbar_input(idx_s,:);
+    bar_col = info.col(idx_s,:);
+    %%%%%%%%%%%%%%
+    
     c = categorical(info.grp_names,info.grp_names);
 
     fig = figure('visible','off');
@@ -65,7 +82,7 @@ function plot_indv_bar_omics(data_now,var_now,name_now,info,savedir)
     for i=1:num_var
         subplot(num_sub,num_sub,i);
         b = bar(c,bar_input(:,i),'FaceColor','flat');
-        b.CData = info.col; 
+        b.CData = bar_col; 
         b.BarWidth = 0.8;
         b.EdgeColor = 'none';
         hold on;

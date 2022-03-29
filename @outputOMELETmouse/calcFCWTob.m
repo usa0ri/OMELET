@@ -6,19 +6,21 @@ function calcFCWTob(obj,savedir)
     par = obj.par;
 
     fluxnames = model_data.X.rxn.rxn_names_include;
-    num_rc = model_data.X.num.num_rc;
+    num_rc = model_data.X.num.num_include;
     iter = size(par.a,1);
 
+    %%%%%%%%%%%%%%
+    % reorder sample indx
+    idx_s = model_data.idx_g_reorder;
     cmb = obj.cont.cmb;
     num_c = size(cmb,1);
     grp_names = model_data.grp_names;
 
-    %%%%%%%%%%%%%%
     % reorder fluxnames
     idx_ = obj.fig_info.idx_reorder;
     % fluxnames = fluxnames(idx_);
     fluxnames = obj.fig_info.fluxnames;
-    par.v = par.v(:,:,idx_);
+    par.v = par.v(:,idx_s,idx_);
     %%%%%%%%%%%%%%
 
     tmp = 0.3;
@@ -85,18 +87,14 @@ function calcFCWTob(obj,savedir)
     end
 
     obj.fc_wtob = fc;
+    idx_cmb = model_data.idx_cmb;
+    col_list = model_data.col_cmb;
 
-    % WT4h/WT0h - ob4h/ob0h, ob0h/WT0h - ob4h/WT4h
-    idx_cmb = [1 6; 2 5];
-    col_list = [obj.model_data.col(1,:);...
-        obj.model_data.col(3,:);...
-        0.3 0.3 0.3;...
-        0.6 0.6 0.6];
-    for c=1:2
+    for c=1:size(idx_cmb,1)
 
         fig  = figure('visible','off');
         hold on;
-        for ii=1:2
+        for ii=1:size(idx_cmb,2)
             fc_now = reshape(par.v(:,cmb(idx_cmb(c,ii),2),:)./par.v(:,cmb(idx_cmb(c,ii),1),:) ,iter,num_rc);
             boxplot(fc_now,...
                 'labels',fluxnames,...
@@ -143,12 +141,13 @@ function calcFCWTob(obj,savedir)
     %         end
 
         end
-
-        if c==1
+        
+        if c/2<0.1
             ylim([0 2]);
-        elseif c==2
+        else
             ylim([0 4]);
         end
+        
         ax = gca;
         hold on;
         line(linspace(ax.XLim(1),ax.XLim(2),10),ones(1,10),...

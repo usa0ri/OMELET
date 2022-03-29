@@ -82,7 +82,7 @@ classdef outputOMELETmouse < handle
         % Figures 5B, 7B, and S8B
         function makeFig5B_7B_S8B(obj,savedir)
             plotContBar(obj,'flux',[savedir '/Fig5B_7B_S8B']);
-            calcL2(obj,[savedir '/Fig7B'])
+            calcL2(obj,[savedir '/Fig7B']);
         end
         
         % Figures 5C, 7A, and S8A
@@ -131,6 +131,9 @@ classdef outputOMELETmouse < handle
         function makeSupTbls(obj,savedir)
             outputData(obj,[savedir '/output_data']);
         end
+        
+        % plot Timecourse flux
+        plotTimecourseFlux(obj,savedir);
         
     end
 end

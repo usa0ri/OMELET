@@ -1,0 +1,51 @@
+1648553235790:source("my_rstan_OMELETmouse.R")
+1648553236488:data_path = "./model059_0h4h"
+1648553236489:source(paste0(data_path,"/test_OMELETmodel_mkdata.R"))
+1648553245519:save_dir = "./result/result_mouse"
+1648553245520:dir.create("./result")
+1648553245520:dir.create(save_dir)
+1648553251855:initf_path <- "./test_OMELETmouse_initf.R"
+1648553251856:source(initf_path)
+1648553251858:smodel = paste0(data_path,"/test_OMELETmodel.stan")
+1648553281646:initf_path <- "./test_OMELETmodel_initf.R"
+1648553281647:source(initf_path)
+1648553281667:smodel = paste0(data_path,"/test_OMELETmodel.stan")
+1648553330155:initf_path <- paste0(data_path,"/test_OMELETmodel_initf.R")
+1648553330156:source(initf_path)
+1648553333001:smodel = paste0(data_path,"/test_OMELETmodel.stan")
+1648553339280:thin <- 1
+1648553339281:adapt_delta <- 0.8
+1648553339281:max_treedepth <- 10
+1648553339281:c_v <- 0.1
+1648553339281:c_e <- 0.01
+1648553339282:v_max <- 5
+1648553339282:data <- mkdata_now(data_path,c_v,c_e,v_max)
+1648553339332:res <- my_stan(save_dir,data_path,initf_path,smodel,
+1648553339332:1000,500,thin,adapt_delta,max_treedepth,
+1648553339333:c_v,c_e,v_max)
+1648553787950:source("my_plot.R")
+1648553787955:col_list1 <- c("#0063ff","#4dc4ff","#ff0000","#ff8082")
+1648553787956:col_list2 <- c("#00000000","#00000000","#00000000","#00000000")
+1648553791703:fit <- res$fit
+1648553791704:ms <- my_stan_transform(fit,"fun_model059.R")
+1648553791913:save(ms,file=paste(save_dir,'/ms.RData',sep=""))
+1648553825545:View(my_stan_transform)
+1648553835486:ms <- my_stan_transform(fit,data,"fun_model059.R")
+1648553841581:save(ms,file=paste(save_dir,'/ms.RData',sep=""))
+1648553845311:dens_flux("v",ms,data_path,col_list1,col_list2,save_dir)
+1648553866130:trace_param(fit,save_dir,"v",20,20)
+1648553866131:trace_param(fit,save_dir,"mu_vi_g",20,10)
+1648553866131:trace_param(fit,save_dir,"a",10,10)
+1648553866132:trace_param(fit,save_dir,"b",10,10)
+1648553866132:trace_param(fit,save_dir,"e_effs",10,10)
+1648553945770:source("my_rstan_OMELETmouse.R")
+1648553951376:dens_flux("v",ms,data_path,col_list1,col_list2,save_dir)
+1648553951513:trace_param(fit,save_dir,"v",20,20)
+1648553954554:trace_param(fit,save_dir,"mu_vi_g",20,10)
+1648553955919:trace_param(fit,save_dir,"a",10,10)
+1648553956904:trace_param(fit,save_dir,"b",10,10)
+1648553957809:trace_param(fit,save_dir,"e_effs",10,10)
+1648553973821:output_summary(fit,save_dir)
+1648553977831:check_enz_fitting(ms,data_path,col_list1,save_dir)
+1648553977844:check_rna_fitting(ms,data_path,col_list1,save_dir)
+1648553977845:output_data(ms,save_dir)

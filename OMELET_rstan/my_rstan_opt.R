@@ -1,2 +1,0 @@
-library(shinystan)
-library(bayesplot)

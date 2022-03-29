@@ -1,0 +1,6 @@
+OAA,Pck1,substrate
+Pyruvate,Pcx,substrate
+OAA,Cs,substrate
+Pyruvate,Ldha,product
+Pyruvate,Gpt,product
+OAA,Mdh2,product

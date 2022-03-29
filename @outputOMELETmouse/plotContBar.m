@@ -25,7 +25,7 @@ end
 function plot_cont(cont_r_list,fname_str,model_data,is_errorbar,opts)
 
     fluxnames = model_data.X.rxn.rxn_names_include;
-    num_rc = model_data.X.num.num_rc;
+    num_rc = model_data.X.num.num_include;
     num_r = length(opts.s_names);
     sz = size(cont_r_list);
     cont = nan(sz(1),num_r,sz(3));

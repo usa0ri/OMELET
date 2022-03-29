@@ -58,7 +58,7 @@ end
 function [dat,dat_mu,dat_var] = load_data(model_data,par,cmb)
 
     iter = size(par.a,1);
-    num_rc = model_data.X.num.num_rc;
+    num_rc = model_data.X.num.num_include;
     num_smpl = model_data.num_smpl;
 
     % sample index analyzed
@@ -130,7 +130,7 @@ function [dat,dat_mu,dat_var] = calc_unknown(model_data,par,dat,dat_mu,dat_var,c
     iter = size(par.a,1);
     num_smpl = model_data.num_smpl;
     num_smpl_g = model_data.num_smpl_g;
-    num_rc = model_data.X.num.num_rc;
+    num_rc = model_data.X.num.num_include;
     num_g = model_data.num_g;
     idx_g = model_data.idx_g;
 

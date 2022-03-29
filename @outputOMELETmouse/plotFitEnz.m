@@ -7,9 +7,7 @@ function plotFitEnz(obj,savedir)
 
     rxn_names = model_data.X.rxn.rxn_names_include;
     enz = model_data.out.enz;
-    enz(ismember(rxn_names,'Sdha'),:) = enz(ismember(rxn_names,'Sdha'),:).*...
-        model_data.D.enz_eff;
-    enz(ismember(rxn_names,{'Gpt','Glud1'}),:) = nan;
+    enz(ismember(rxn_names,obj.model_data.out.enz_names_est),:) = nan;
 
     rna = model_data.out.rna;
     rna_eff = model_data.out.rna_eff;
@@ -19,11 +17,11 @@ function plotFitEnz(obj,savedir)
     num_smpl = model_data.num_smpl;
     num_smpl_g = model_data.num_smpl_g;
     iter = size(obj.par.a,1);
-    rna_eff_pred = nan(iter,1,num_smpl);
-    for i=1:iter
-        rna_eff_pred(i,1,:) = randn(1,num_smpl) * sqrt(obj.par.sigma_n2(i)) + obj.par.y_eff(i,:);
-    end
-    
+%     rna_eff_pred = nan(iter,1,num_smpl);
+%     for i=1:iter
+%         rna_eff_pred(i,1,:) = randn(1,num_smpl) * sqrt(obj.par.sigma_n2(i)) + obj.par.y_eff(i,:);
+%     end
+%     
 
     fnames = {'protein','transcript'};
     % is_mean = {'mean','raw'};
@@ -38,9 +36,11 @@ function plotFitEnz(obj,savedir)
     %         x_pred = obj.par.enz_pred2;
     %         x = enz;
     %         idx_reorder = obj.fig_info.idx_reorder;
-            x_pred = cat(2,obj.par.rna_pred,rna_eff_pred);
-            x = [rna; rna_eff];
-            idx_reorder = [1 2 3 4 5 6 9 10 7 11 8 12 13 17 14 15 16]';
+%             x_pred = cat(2,obj.par.rna_pred,rna_eff_pred);
+%             x = [rna; rna_eff];
+            x_pred = obj.par.rna_pred;
+            x = rna;
+            idx_reorder = obj.fig_info.idx_reorder;
        end
        plot_box(obj,x_pred,model_data,x,fnames{i},is_mean{1},idx_reorder,...
                savedir_now);
@@ -53,7 +53,7 @@ end
 function plot_box(obj,x_pred,model_data,x,fname,is_mean,idx_,savedir)
 
     rxn_names = model_data.X.rxn.rxn_names_include;
-    num_rc = model_data.X.num.num_rc;
+    num_rc = model_data.X.num.num_include;
     iter = size(x_pred,1);
     num_smpl = model_data.out.num_smpl;
     idx_g = model_data.out.idx_g;
@@ -65,10 +65,10 @@ function plot_box(obj,x_pred,model_data,x,fname,is_mean,idx_,savedir)
         case 'protein'
             rxn_names = rxn_names(idx_);
         case 'transcript'
-    %         rxn_names = rxn_names(idx_);
-            rxn_names_tmp = [rxn_names; 'Sdhb'];
-            rxn_names = rxn_names_tmp(idx_);
-            num_rc = num_rc+1;
+            rxn_names = rxn_names(idx_);
+%             rxn_names_tmp = [rxn_names; 'Sdhb'];
+%             rxn_names = rxn_names_tmp(idx_);
+            num_rc = num_rc;
     end
     x_pred = x_pred(:,idx_,:);
     x = x(idx_,:);

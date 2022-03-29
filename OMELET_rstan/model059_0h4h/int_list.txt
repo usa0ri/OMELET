@@ -1,0 +1,19 @@
+num_r	22
+num_ri	7
+num_rd	15
+num_rc	16
+num_m	23
+num_mc	15
+num_ri_wt	6
+num_b	11
+num_smpl	47
+num_g	4
+num_p	2
+num_met_eff	16
+num_met_eff_pairs	22
+num_enz_cmplx	0
+num_met_est	2
+idx_cmplx	
+idx_fixed	1
+enz_eff	
+rna_eff	

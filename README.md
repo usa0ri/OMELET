@@ -69,27 +69,27 @@ The RStan environment can be build from docker images `saori/rstan` from [Docker
 
 First, you need to make input data for OMELET. Execute the following commands on MATLAB;
 
-To use the functions under `./make_input_OMELET`:
+Use the functions under `./make_input_OMELET`:
 ```matlab
-addpath <path to ./OMELET/make_input_OMELET>
+addpath '<path to ./OMELET/make_input_OMELET>';
 ```
 
-To specify the path to the .csv file that contains stoichiometric matrix and information on cofactors and allosteric effectors in a specific format.
+Specify the path to the .csv file that contains stoichiometric matrix and information on cofactors and allosteric effectors in a specific format.
 ```matlab
-S_path = <path to ./OMELET/make_input_OMELET/S_OMELETmouse.csv>:
+S_path = '<path to ./OMELET/make_input_OMELET/S_OMELETmouse.csv>';
 ```
 
-To specify the path to the directory containing multi-omic data (metabolome.csv, proteome.csv, transcriptome.csv):
+Specify the path to the directory containing multi-omic data (metabolome.csv, proteome.csv, transcriptome.csv):
 ```matlab
-data_dir_path = <path to ./OMELET/data>`
+data_dir_path = '<path to ./OMELET/data>';
 ```
 
-To specify the directory to save the input data for OMELET:
+Specify the directory to save the input data for OMELET:
 ```matlab
-savedir = <path to the directory where you want to save your input data>;
+savedir = '<path to the directory where you want to save your input data>';
 ```
 
-To choose indexes from `Index` row in metabolome.csv, proteome.csv, transcriptome.csv:
+Choose indexes from `Index` row in metabolome.csv, proteome.csv, transcriptome.csv:
 ```matlab
 idx_smplgrp = [1 2 3 4];
 % 1: WT in the fasting state
@@ -104,7 +104,49 @@ After specifying all the arguments, execute the following commands on MATLAB.
 make_input_OMELETmouse(S_path,data_dir_path,idx_smplgrp,savedir);
 ```
 
-The input data for OMELET will be saved under `savedir`, and those used in Uematsu et al. are under `./OMELET/OMELET_rstan/input_OMELETmouse_sample`.
+The input data for OMELET will be saved under `savedir`. The input data for the metabolic network used in Uematsu et al. are under `./OMELET/OMELET_rstan/model059_0h4h`.
+
+
+## Step 2. Make .stan and .R scripts for OMELET
+
+Next, you need to make .stan and .R scripts to run OMELET using Rstan. Execute the following commands on MATLAB;
+
+Specify the base name of your stan model.
+```matlab
+fname = '<your favorite name>';
+```
+
+Specify the path to the directory where input data are saved.
+```matlab
+loaddir = '<path to the directory where you saved your input data>'
+```
+
+Make .stan and .R scripts using the input data.
+```matlab
+make_rstan_model(loaddir,fname);
+```
+
+
+These commands generate the following scripts under `loaddir`:
+
++ `<fname>.stan`: .stan model for OMELET. Please be sure to edit line 21 as follows:
+
+(Before)
+```
+Sigma_tmp= Nu*(diag_matrix(diag_mu_vi))*Nu''+ Ne*diag_matrix(sigma_e)*Ne'';
+```
+
+(After)
+```
+Sigma_tmp= Nu*(diag_matrix(diag_mu_vi))*Nu'+ Ne*diag_matrix(sigma_e)*Ne';
+```
+
+
++ `<fname>_initf.R`: .R script to specify initial values of the parameters
+
++ `<fname>_mkdata.R`: .R script to import the input data into stan model
+
+
 
 
 ## Step 2. Perform OMELET to infer metabolic fluxes and other parameters
@@ -115,10 +157,7 @@ Create your working directory in your computer.
 
 Copy the following functions under `./OMELET/OMELET_rstan` to your working directory:
 ```
-initf_OMELETmouse.R
-my_plot.R
 my_rstan_OMELETmouse.R
-my_rstan_opt.R
 OMELETmouse.stan
 run_docker_RStan.sh
 ```
@@ -130,7 +169,7 @@ Create a directory for input data, and copy all the input data generated in step
 
 `cd` to your working directory.
 
-To run the `saori/rstan:latest` image in a docker container;
+Run the `saori/rstan:latest` image in a docker container;
 
 + If you are using Ubuntu, execute the following commands on the terminal:
 ```shell 
@@ -145,26 +184,106 @@ run_docker_RStan.bat <your container name> rstudio
 After running your Docker container, visit `localhost:8787` in your browser and log in with username `rstudio` and password `1`. The Rstudio environment will be launched on your browser where Rstan environments have already been installed.
 
 
-### Run OMELET
+### Load functions
 
+Before running OMELET, execute the following commands;
 
-
-
-
-
-To plot Figure 4A, execute the following command on R.
+Load the R functions needed to run OMELET:
 ```R
+source("my_rstan_OMELETmouse.R")
+```
 
+Specify the path to the input data:
+```R
+data_path = "./model059_0h4h"
+```
+
+Load the R functions:
+```R
+source(paste0(data_path,"/<fname>_mkdata.R"))
+initf_path <- paste0(data_path,"/<fname>_initf.R")
+source(initf_path)
+```
+
+Specify the stan model:
+```R
+smodel = paste0(data_path,"/test_OMELETmodel.stan")
+```
+
+Make the directory to save the results:
+```R
+save_dir = "./result/result_mouse"
+dir.create("./result")
+dir.create(save_dir)
+```
+
+
+### run OMELET
+
+Run OMELET with specified arguments including thinnings (`thin`), MCMC sampling parameters (`adapt_delta` and `max_treedepth`), $c^v$ (`c_v`), $c^{\dot{x}}$ (`c_e`) and flux range (`v_max`):
+```R
+thin <- 1
+adapt_delta <- 0.8
+max_treedepth <- 10
+c_v <- 0.1
+c_e <- 0.01
+v_max <- 5
+data <- mkdata_now(data_path,c_v,c_e,v_max)
+res <- my_stan(save_dir,data_path,initf_path,smodel,
+               1000,500,thin,adapt_delta,max_treedepth,
+               c_v,c_e,v_max)
+```
+
+Please wait for a while.
+
+
+### Plot the results
+
+Reshape the output results:
+```R
+fit <- res$fit
+ms <- my_stan_transform(fit,data,"fun_model059.R")
+save(ms,file=paste(save_dir,'/ms.RData',sep=""))
+```
+
+Specify the colors of strokes (`col_list1`) and fills (`col_list2`):
+```R
+col_list1 <- c("#0063ff","#4dc4ff","#ff0000","#ff8082")
+col_list2 <- c("#00000000","#00000000","#00000000","#00000000")
+```
+
+Draw density plots of metabolic fluxes.
+```R
+dens_flux("v",ms,data_path,col_list1,col_list2,save_dir)
+```
+
+Draw trace plots by specifying the output result (`fit`), the directory to save the plots (`savedir`), the parameter name (e.g., `"v"`), width, and heights.
+```R
+trace_param(fit,save_dir,"v",20,20)
+trace_param(fit,save_dir,"mu_vi_g",20,10)
+trace_param(fit,save_dir,"a",10,10)
+trace_param(fit,save_dir,"b",10,10)
+trace_param(fit,save_dir,"e_effs",10,10)
+```
+
+Export the statistics of MCMC samples into `summary_out.csv`:
+```R
+output_summary(fit,save_dir)
+```
+
+Export the parameters into `<parameter name>.txt`:
+```R
+output_data(ms,save_dir)
 ```
 
 
 ## Step 3. Calculate contributions of regulators to changes in metabolic flux between conditions
 
-After moving to the cloned main project directory `./OMELET`, execute the following commands on MATLAB;
+The following procedure should be executed on MATLAB.
 
-To specify the path to the directory containing multi-omic data (metabolome.csv, proteome.csv, transcriptome.csv):
+Specify the path to the directory containing multi-omic data (metabolome.csv, proteome.csv, transcriptome.csv):
 ```matlab
-data_dir_path = <path to ./OMELET/data>
+data_dir_path = <path to ./OMELET/data>;
 ```
 
 To specify the path to the directory containing the results of parameter estimation of OMELET by Rstan.
@@ -187,9 +306,11 @@ The resulting `obj` object contains definitions of metabolic network, omics data
 
 ## Step 4. Make figures
 
+The following procedure should be executed on MATLAB.
+
 First you need to specify the directory to save figures.
 ```matlab
-savedir = <path to the directory where you want to save your figures>;
+savedir = '<path to the directory where you want to save your figures>';
 mkdir(savedir);
 ```
 
@@ -200,19 +321,9 @@ obj.makeFig4B(savedir);
 obj.makeFig4C_4D(savedir);
 obj.makeFig5B_7B_S8B(savedir);
 obj.makeFig5C_7A_S8A(savedir);
-obj.makeFig6BCD_7C_S8C(savedir);
-obj.makeFigS1(savedir);
+
 obj.makeFigS4(savedir);
-obj.makeFigS5(savedir);
-obj.makeFigS6(savedir);
-obj.makeFigS7(savedir);
 ```
-
-To save the `obj` object under `savedir`, execute the following command.
-```matlab
-save([savedir '/obj_outputOMELETmouse.mat'],'obj');
-```
-
 
 # Application to yeast data
 
